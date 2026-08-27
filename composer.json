@@ -1,0 +1,24 @@
+{
+    "name": "zofe/ai-module",
+    "description": "AI widget and tool registry for rapyd-admin",
+    "type": "library",
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "Zofe\\Ai\\": "./"
+        }
+    },
+    "require": {
+        "php": "^8.2",
+        "zofe/rapyd-admin": "dev-main"
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Zofe\\Ai\\AiServiceProvider"
+            ]
+        }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
+}
