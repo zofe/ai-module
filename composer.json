@@ -1,8 +1,17 @@
 {
     "name": "zofe/ai-module",
-    "description": "AI widget and tool registry for rapyd-admin",
+    "description": "AI widget, tool registry and multi-provider service (Anthropic, OpenAI-compatible, Ollama) for rapyd-admin",
     "type": "library",
     "license": "MIT",
+    "homepage": "https://github.com/zofe/ai-module",
+    "authors": [
+        {
+            "name": "Felice Ostuni",
+            "email": "felice.ostuni@uania.com",
+            "homepage": "https://rapyd.dev"
+        }
+    ],
+    "keywords": ["laravel", "livewire", "ai", "chatbot", "rapyd-admin", "openai", "anthropic", "ollama"],
     "autoload": {
         "psr-4": {
             "Zofe\\Ai\\": "./"
