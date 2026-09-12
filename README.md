@@ -1,5 +1,7 @@
 # AI module for rapyd-admin
 
+<a href="https://github.com/zofe/ai-module/actions/workflows/run-tests.yml"><img src="https://github.com/zofe/ai-module/actions/workflows/run-tests.yml/badge.svg" alt="Tests"></a>
+
 A chat widget (`@aiWidget` in any layout), a registry of tools the modules expose to the model, and one service for
 Anthropic, OpenAI-compatible APIs (OpenAI, DeepSeek, Groq, Mistral…) and Ollama.
 
