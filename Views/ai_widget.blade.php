@@ -26,6 +26,7 @@
             width: 360px; height: 480px;
             display: flex; flex-direction: column;
             border-radius: 12px; overflow: hidden;
+            background: var(--bs-body-bg); color: var(--bs-body-color);
         "
     >
         {{-- Header --}}
@@ -44,7 +45,7 @@
         {{-- Messages --}}
         <div
             class="flex-grow-1 overflow-auto p-3"
-            style="background: #f8f9fa;"
+            style="background: var(--bs-tertiary-bg, #f8f9fa);"
             x-ref="messages"
             x-effect="$nextTick(() => { $refs.messages.scrollTop = $refs.messages.scrollHeight })"
         >
@@ -73,8 +74,8 @@
                 @else
                     <div class="d-flex justify-content-start mb-2">
                         <div
-                            class="px-3 py-2 rounded-3 {{ !empty($message['error']) ? 'bg-danger text-white' : 'bg-white border' }}"
-                            style="max-width: 85%; white-space: pre-wrap; word-break: break-word; line-height: 1.5;"
+                            class="px-3 py-2 rounded-3 {{ !empty($message['error']) ? 'bg-danger text-white' : 'border' }}"
+                            style="max-width: 85%; white-space: pre-wrap; word-break: break-word; line-height: 1.5; {{ empty($message['error']) ? 'background: var(--bs-body-bg); color: var(--bs-body-color);' : '' }}"
                         >{{ $message['content'] }}</div>
                     </div>
                 @endif
@@ -82,7 +83,7 @@
 
             @if($loading)
                 <div class="d-flex justify-content-start mb-2">
-                    <div class="px-3 py-2 rounded-3 bg-white border text-muted" style="font-size: 13px;">
+                    <div class="px-3 py-2 rounded-3 border text-muted" style="font-size: 13px; background: var(--bs-body-bg);">
                         <span class="spinner-border spinner-border-sm me-1" style="width: 10px; height: 10px;"></span>
                         Thinking...
                     </div>
@@ -92,7 +93,7 @@
 
         {{-- Input --}}
         @if($aiKeySet)
-        <div class="card-footer p-2 bg-white border-top">
+        <div class="card-footer p-2 border-top" style="background: var(--bs-body-bg);">
             <form wire:submit="send" class="d-flex gap-2">
                 <input
                     wire:model="input"
