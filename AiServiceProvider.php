@@ -25,6 +25,7 @@ class AiServiceProvider extends ServiceProvider
         Blade::directive('aiWidget', fn () => "<?php if(config('ai.widget.enabled')) echo \Livewire\Livewire::mount('ai::ai-widget'); ?>");
 
         if ($this->app->runningInConsole()) {
+            $this->commands([Commands\AiUsageCommand::class]);
             $this->publishes([
                 __DIR__ . '/config.php' => config_path('ai.php'),
             ], 'ai-config');

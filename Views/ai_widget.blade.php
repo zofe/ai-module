@@ -100,6 +100,7 @@
                     type="text"
                     class="form-control form-control-sm"
                     placeholder="{{ $mode === 'operator' ? 'Ask about your data...' : 'Type a message...' }}"
+                    maxlength="{{ config('ai.widget.max_input', 500) ?: 4000 }}"
                     :disabled="$wire.loading"
                     autocomplete="off"
                 >
