@@ -2,22 +2,31 @@
 
 namespace Zofe\Ai\Services;
 
+use Illuminate\Contracts\Cache\Repository;
 use Illuminate\Support\Facades\Cache;
 
 /**
  * Daily token counters in the cache, converted to USD with the configured
  * prices. The counters are the perimeter of the spend: when the day's cost
  * reaches the budget, the widget stops calling the provider.
+ *
+ * They live in the store named by `ai.budget.store` (null = the default
+ * cache), so that `cache:clear` on the application cache can leave them alone.
  */
 class AiUsage
 {
+    protected function cache(): Repository
+    {
+        return Cache::store(config('ai.budget.store') ?: null);
+    }
+
     public function record(int $input, int $output): void
     {
         $day = $this->day();
         foreach (['requests' => 1, 'input' => $input, 'output' => $output] as $counter => $value) {
             $key = $this->key($day, $counter);
-            Cache::add($key, 0, now()->addDays(2));
-            Cache::increment($key, $value);
+            $this->cache()->add($key, 0, now()->addDays(2));
+            $this->cache()->increment($key, $value);
         }
     }
 
@@ -30,12 +39,12 @@ class AiUsage
     /** @return array{day: string, requests: int, input: int, output: int, cost: float} */
     public function forDay(string $day): array
     {
-        $input  = (int) Cache::get($this->key($day, 'input'), 0);
-        $output = (int) Cache::get($this->key($day, 'output'), 0);
+        $input  = (int) $this->cache()->get($this->key($day, 'input'), 0);
+        $output = (int) $this->cache()->get($this->key($day, 'output'), 0);
 
         return [
             'day'      => $day,
-            'requests' => (int) Cache::get($this->key($day, 'requests'), 0),
+            'requests' => (int) $this->cache()->get($this->key($day, 'requests'), 0),
             'input'    => $input,
             'output'   => $output,
             'cost'     => $this->cost($input, $output),

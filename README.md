@@ -59,7 +59,9 @@ logged; the visitor sees a generic message (the real one with `APP_DEBUG=true`).
 The tokens of every call are counted in the cache (per day) and priced with `AI_PRICE_INPUT` / `AI_PRICE_OUTPUT`
 (USD per million tokens, defaults 0.30 / 1.20: set your provider's list price). When the day's cost reaches
 `AI_DAILY_BUDGET` the widget answers "paused until tomorrow" instead of calling the provider. With `AI_LOG_USAGE`
-(default on) every request writes one log line with tokens, cost, IP and user.
+(default on) every request writes one log line with tokens, cost, IP and user. The counters live in the cache store
+named by `AI_USAGE_STORE` (default: the application cache, which `cache:clear` and `optimize:clear` wipe); set it to
+another store, `file` for instance, to keep them across deploys.
 
 ```bash
 php artisan ai:usage            # requests, tokens and cost of the last 7 days

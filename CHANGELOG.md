@@ -1,5 +1,9 @@
 # Changelog
 
+## [1.0.1] - 2026-09-12
+
+- `AI_USAGE_STORE`: the cache store of the daily counters (default: the application cache). `optimize:clear` on deploy was resetting the day's spend.
+
 ## [1.0.0] - 2026-09-12
 
 First tagged release.

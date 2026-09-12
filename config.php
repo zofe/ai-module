@@ -68,9 +68,12 @@ return [
     | prices below (per million tokens). When the cost of the day reaches
     | `daily`, the widget answers "paused until tomorrow" instead of calling
     | the provider. 0 = unlimited. `php artisan ai:usage` shows the counters.
+    | `store`: the cache store holding the counters (null = default cache);
+    | pick another one (e.g. "file") so that `cache:clear` keeps them.
     */
     'budget' => [
         'daily'        => (float) env('AI_DAILY_BUDGET', 0),
+        'store'        => env('AI_USAGE_STORE', null),
         'price_input'  => (float) env('AI_PRICE_INPUT', 0.30),
         'price_output' => (float) env('AI_PRICE_OUTPUT', 1.20),
     ],
