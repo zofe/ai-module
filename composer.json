@@ -11,7 +11,16 @@
             "homepage": "https://rapyd.dev"
         }
     ],
-    "keywords": ["laravel", "livewire", "ai", "chatbot", "rapyd-admin", "openai", "anthropic", "ollama"],
+    "keywords": [
+        "laravel",
+        "livewire",
+        "ai",
+        "chatbot",
+        "rapyd-admin",
+        "openai",
+        "anthropic",
+        "ollama"
+    ],
     "autoload": {
         "psr-4": {
             "Zofe\\Ai\\": "./"
@@ -19,7 +28,7 @@
     },
     "require": {
         "php": "^8.2",
-        "zofe/rapyd-admin": "dev-main"
+        "zofe/rapyd-admin": "^9.6"
     },
     "extra": {
         "laravel": {
