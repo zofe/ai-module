@@ -1,5 +1,9 @@
 # Changelog
 
+## [1.3.2] - 2026-09-21
+
+- The example prompts are shown and copied in the language of the page (translations in rapyd-admin 9.17.3).
+
 ## [1.3.1] - 2026-09-21
 
 - The breadcrumb of the page is a phrase too, with the language of the page in its link.

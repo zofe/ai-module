@@ -145,15 +145,15 @@
                         <div class="d-flex justify-content-between align-items-start mb-1">
                             <strong>{{ __($p['title']) }}</strong>
                             @if($p['available'])
-                                <button type="button" class="btn btn-outline-primary btn-sm" @click="navigator.clipboard.writeText(@js($p['prompt'])); copied = true; setTimeout(() => copied = false, 1500)">
+                                <button type="button" class="btn btn-outline-primary btn-sm" @click="navigator.clipboard.writeText(@js(__($p['prompt']))); copied = true; setTimeout(() => copied = false, 1500)">
                                     <span x-show="!copied">{{ __('Copy') }}</span><span x-show="copied" x-cloak>{{ __('Copied') }}</span>
                                 </button>
                             @else
                                 <span class="badge bg-secondary">{{ __('needs') }} {{ implode(', ', $p['missing']) }}</span>
                             @endif
                         </div>
-                        <blockquote class="mb-1 small fst-italic">"{{ $p['prompt'] }}"</blockquote>
-                        <small class="text-muted">{{ __('Produces:') }} {{ $p['produces'] }}</small>
+                        <blockquote class="mb-1 small fst-italic">"{{ __($p['prompt']) }}"</blockquote>
+                        <small class="text-muted">{{ __('Produces:') }} {{ __($p['produces']) }}</small>
                     </div>
                 </div>
             @endforeach
