@@ -1,5 +1,16 @@
 # Changelog
 
+## [1.1.0] - 2026-09-20
+
+- "AI readiness" page (`ai/status`, permission `view ai status` for admin and operator, entry in the admin menu): is
+  the application ready for AI-assisted development? The coding assistant tooling and the app modules from
+  rapyd-admin's `rpd:ai:status`, plus the AI runtime of the application: provider, widget, registered tools, spend of
+  the last 7 days against the budget. A simple view in plain words with the commands to run, an advanced view with
+  every row and the estimated context per session.
+- The module is a rapyd-admin module package (`RapydModuleServiceProvider`): `config.php` declares layout, menu and
+  permissions; requires rapyd-admin ^9.15.
+- `AiUsage::lastDays()`; counters kept 8 days instead of 2.
+
 ## [1.0.1] - 2026-09-12
 
 - `AI_USAGE_STORE`: the cache store of the daily counters (default: the application cache). `optimize:clear` on deploy was resetting the day's spend.

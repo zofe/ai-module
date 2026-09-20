@@ -15,6 +15,9 @@ use Illuminate\Support\Facades\Cache;
  */
 class AiUsage
 {
+    /** Days of counters kept, for the history of the AI readiness page. */
+    public const KEEP_DAYS = 7;
+
     protected function cache(): Repository
     {
         return Cache::store(config('ai.budget.store') ?: null);
@@ -25,7 +28,7 @@ class AiUsage
         $day = $this->day();
         foreach (['requests' => 1, 'input' => $input, 'output' => $output] as $counter => $value) {
             $key = $this->key($day, $counter);
-            $this->cache()->add($key, 0, now()->addDays(2));
+            $this->cache()->add($key, 0, now()->addDays(self::KEEP_DAYS + 1));
             $this->cache()->increment($key, $value);
         }
     }
@@ -49,6 +52,21 @@ class AiUsage
             'output'   => $output,
             'cost'     => $this->cost($input, $output),
         ];
+    }
+
+    /**
+     * The last days, today first.
+     *
+     * @return list<array{day: string, requests: int, input: int, output: int, cost: float}>
+     */
+    public function lastDays(int $days = self::KEEP_DAYS): array
+    {
+        $rows = [];
+        for ($i = 0; $i < $days; $i++) {
+            $rows[] = $this->forDay(now()->subDays($i)->format('Y-m-d'));
+        }
+
+        return $rows;
     }
 
     public function cost(int $input, int $output): float

@@ -3,24 +3,32 @@
 namespace Zofe\Ai;
 
 use Illuminate\Support\Facades\Blade;
-use Illuminate\Support\ServiceProvider;
-use Livewire\Livewire;
 use Zofe\Ai\Services\AiService;
+use Zofe\Rapyd\Modules\RapydModuleServiceProvider;
 
-class AiServiceProvider extends ServiceProvider
+/**
+ * The AI module as a module package: config.php (provider, widget, budget and,
+ * as every module, layout / menu / permissions), the "ai::" views and components,
+ * routes.php with the AI readiness page, the @aiWidget directive.
+ */
+class AiServiceProvider extends RapydModuleServiceProvider
 {
+    protected string $moduleName = 'Ai';
+
+    protected ?string $modulePath = __DIR__;
+
+    protected ?string $livewireNamespace = 'Zofe\\Ai\\Livewire';
+
     public function register(): void
     {
-        $this->mergeConfigFrom(__DIR__ . '/config.php', 'ai');
+        parent::register();   // config.php as config('ai'), permissions into auth.*
 
         $this->app->singleton(AiService::class);
     }
 
     public function boot(): void
     {
-        $this->loadViewsFrom(__DIR__ . '/Views', 'ai');
-
-        Livewire::addNamespace('ai', null, 'Zofe\\Ai\\Livewire', __DIR__ . '/Livewire');
+        $this->bootAppModule('ai');
 
         Blade::directive('aiWidget', fn () => "<?php if(config('ai.widget.enabled')) echo \Livewire\Livewire::mount('ai::ai-widget'); ?>");
 

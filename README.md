@@ -67,6 +67,21 @@ another store, `file` for instance, to keep them across deploys.
 php artisan ai:usage            # requests, tokens and cost of the last 7 days
 ```
 
+## The "AI readiness" page
+
+`/ai/status` in the admin (menu entry "AI readiness", permission `view ai status`, given to admin and operator)
+answers two questions for the developers of the application:
+
+- **Is this app ready to be developed with an AI coding assistant?** The guideline and the skills of Rapyd Admin
+  in front of the agent and current, `CLAUDE.md`, Laravel Boost, MCP servers; the modules in `app/Modules` against
+  the conventions the agent is taught (pages without `Authorize`, permissions, `Limits/`, workflows, tests). This is
+  rapyd-admin's `php artisan rpd:ai:status`, as a page.
+- **What does the AI inside the app cost?** Provider and model, widget mode, the tools the modules registered, the
+  spend of the last 7 days against the daily budget.
+
+The *simple view* says in plain words what is fine and which commands to run; the *advanced view* shows every row and
+the estimated context the agent loads per session. Nothing on the page calls a provider.
+
 ## Tests
 
 ```bash

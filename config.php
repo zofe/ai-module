@@ -4,6 +4,23 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Module: layout, menu and permissions (like every rapyd-admin module)
+    |--------------------------------------------------------------------------
+    | The AI readiness page (ai/status) shows how ready the application is for
+    | AI-assisted development and what the AI runtime costs. `view ai status`
+    | is created by AuthSeeder and given to admin and operator.
+    */
+    'layout' => 'layout::admin',
+    'menu_admin' => 'ai::admin_menu',
+    'menu_admin_position' => 90,
+
+    'permissions' => ['view ai status'],
+    'role_permissions' => [
+        'operator' => ['view ai status'],
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Default AI Provider
     |--------------------------------------------------------------------------
     | Supported: "anthropic", "openai" (and any OpenAI-compatible API such as
