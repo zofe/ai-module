@@ -1,5 +1,9 @@
 # Changelog
 
+## [1.3.1] - 2026-09-21
+
+- The breadcrumb of the page is a phrase too, with the language of the page in its link.
+
 ## [1.3.0] - 2026-09-21
 
 - Languages: the "Develop with AI" page, its menu entry and the chat widget are phrases through `__()`, with

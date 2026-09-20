@@ -6,4 +6,4 @@ use Zofe\Ai\Livewire\DevelopWithAi;
 Route::get('ai/develop', DevelopWithAi::class)
     ->middleware(['web', 'auth'])
     ->name('ai.develop')
-    ->crumbs(fn ($crumbs) => $crumbs->parent('home')->push('Develop with AI', route('ai.develop')));
+    ->crumbs(fn ($crumbs) => $crumbs->parent('home')->push(__('Develop with AI'), route_lang('ai.develop')));
