@@ -6,17 +6,18 @@ return [
     |--------------------------------------------------------------------------
     | Module: layout, menu and permissions (like every rapyd-admin module)
     |--------------------------------------------------------------------------
-    | The AI readiness page (ai/status) shows how ready the application is for
-    | AI-assisted development and what the AI runtime costs. `view ai status`
-    | is created by AuthSeeder and given to admin and operator.
+    | The "Develop with AI" page (ai/develop): what the coding agent can do in
+    | this application, what was built with it, the prompts to try, what the
+    | AI runtime costs. `develop with ai` is created by AuthSeeder and given
+    | to admin and operator.
     */
     'layout' => 'layout::admin',
     'menu_admin' => 'ai::admin_menu',
     'menu_admin_position' => 90,
 
-    'permissions' => ['view ai status'],
+    'permissions' => ['develop with ai'],
     'role_permissions' => [
-        'operator' => ['view ai status'],
+        'operator' => ['develop with ai'],
     ],
 
     /*

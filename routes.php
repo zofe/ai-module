@@ -1,9 +1,9 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use Zofe\Ai\Livewire\AiStatus;
+use Zofe\Ai\Livewire\DevelopWithAi;
 
-Route::get('ai/status', AiStatus::class)
+Route::get('ai/develop', DevelopWithAi::class)
     ->middleware(['web', 'auth'])
-    ->name('ai.status')
-    ->crumbs(fn ($crumbs) => $crumbs->parent('home')->push('AI readiness', route('ai.status')));
+    ->name('ai.develop')
+    ->crumbs(fn ($crumbs) => $crumbs->parent('home')->push('Develop with AI', route('ai.develop')));
