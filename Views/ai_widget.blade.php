@@ -8,7 +8,7 @@
         x-on:click="open = !open"
         class="btn btn-primary rounded-circle shadow-lg d-flex align-items-center justify-content-center"
         style="width: 52px; height: 52px;"
-        title="{{ $mode === 'operator' ? 'AI Assistant' : 'Support' }}"
+        title="{{ $mode === 'operator' ? __('AI Assistant') : __('Support') }}"
     >
         <i class="fas" :class="open ? 'fa-times' : 'fa-robot'"></i>
     </button>
@@ -36,7 +36,7 @@
                 {{ $mode === 'operator' ? 'AI Assistant' : 'Support' }}
             </span>
             @if(count($messages) > 0)
-            <button wire:click="clear" class="btn btn-sm btn-link text-white p-0" title="Clear">
+            <button wire:click="clear" class="btn btn-sm btn-link text-white p-0" title="{{ __('Clear') }}">
                 <i class="fas fa-trash-alt fa-xs"></i>
             </button>
             @endif
@@ -52,8 +52,8 @@
             @if(!$aiKeySet)
                 <div class="text-center text-muted mt-4 px-3" style="font-size: 12px;">
                     <i class="fas fa-key fa-2x mb-2 d-block opacity-40"></i>
-                    AI provider not configured.<br>
-                    Set <code>AI_OPENAI_KEY</code> or <code>ANTHROPIC_API_KEY</code> in <code>.env</code>.
+                    {{ __('AI provider not configured.') }}<br>
+                    {{ __('Set :a or :b in :env.', ['a' => 'AI_OPENAI_KEY', 'b' => 'ANTHROPIC_API_KEY', 'env' => '.env']) }}
                 </div>
             @elseif(empty($messages))
                 <div class="text-center text-muted mt-4" style="font-size: 13px;">
@@ -85,7 +85,7 @@
                 <div class="d-flex justify-content-start mb-2">
                     <div class="px-3 py-2 rounded-3 border text-muted" style="font-size: 13px; background: var(--bs-body-bg);">
                         <span class="spinner-border spinner-border-sm me-1" style="width: 10px; height: 10px;"></span>
-                        Thinking...
+                        {{ __('Thinking...') }}
                     </div>
                 </div>
             @endif
@@ -99,7 +99,7 @@
                     wire:model="input"
                     type="text"
                     class="form-control form-control-sm"
-                    placeholder="{{ $mode === 'operator' ? 'Ask about your data...' : 'Type a message...' }}"
+                    placeholder="{{ $mode === 'operator' ? __('Ask about your data...') : __('Type a message...') }}"
                     maxlength="{{ config('ai.widget.max_input', 500) ?: 4000 }}"
                     :disabled="$wire.loading"
                     autocomplete="off"

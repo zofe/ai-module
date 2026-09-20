@@ -31,7 +31,7 @@
     },
     "require": {
         "php": "^8.2",
-        "zofe/rapyd-admin": "^9.16"
+        "zofe/rapyd-admin": "^9.17"
     },
     "extra": {
         "laravel": {

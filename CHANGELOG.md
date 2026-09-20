@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.3.0] - 2026-09-21
+
+- Languages: the "Develop with AI" page, its menu entry and the chat widget are phrases through `__()`, with
+  catalogues in `Lang/` (`it` reviewed; `es`, `fr`, `de`, `pt_BR` machine-translated, listed in `.rpd-lang.json`).
+  Requires rapyd-admin ^9.17.
+
 ## [1.2.0] - 2026-09-20
 
 - The "AI readiness" page becomes **"Develop with AI"** (`ai/develop`, permission `develop with ai`): what the coding
