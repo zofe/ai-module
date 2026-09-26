@@ -67,6 +67,10 @@ return [
         'tools_permission' => env('AI_TOOLS_PERMISSION', null),   // e.g. "ai.tools"; null = any logged-in user
 
         'max_tokens'    => (int) env('AI_MAX_TOKENS', 1024),  // reply length
+        // How many times in a row the model may call tools before it has to answer: a question
+        // that needs two tools in sequence ("top categories, and is the first one growing?")
+        // fails with a single round. Each round is a call to the provider, so this bounds the cost.
+        'max_tool_rounds' => (int) env('AI_MAX_TOOL_ROUNDS', \Zofe\Ai\Services\AiService::MAX_TOOL_ROUNDS),
         'max_input'     => (int) env('AI_MAX_INPUT', 500),    // characters per message
         'history'       => (int) env('AI_HISTORY', 8),        // messages sent to the model (last N)
 

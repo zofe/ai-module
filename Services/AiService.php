@@ -7,6 +7,9 @@ use Zofe\Ai\AiRegistry;
 
 class AiService
 {
+    /** How many times in a row the model may call tools before it has to answer. */
+    public const MAX_TOOL_ROUNDS = 5;
+
     protected string $provider;
 
     /** Tokens of the last chat() call, every round-trip included. */
@@ -22,8 +25,10 @@ class AiService
 
     /**
      * Send the conversation and return the text reply.
-     * Handles one tool-use round-trip automatically; every call to the
-     * provider is counted in AiUsage.
+     * Tools are executed and fed back until the model stops asking for them, up to
+     * `ai.widget.max_tool_rounds` rounds; every call to the provider is counted in AiUsage.
+     * A question like "top three categories, and is the first one growing?" needs two tools
+     * in a row: with a single round the second call leaks into the answer as raw text.
      *
      * @param  array  $messages  [['role' => 'user'|'assistant', 'content' => '...']]
      * @param  bool   $withTools  Include registered AiTool definitions in the request
@@ -41,7 +46,7 @@ class AiService
 
     // -------------------------------------------------------------------------
 
-    protected function chatAnthropic(array $messages, bool $withTools): string
+    protected function chatAnthropic(array $messages, bool $withTools, int $round = 0): string
     {
         $payload = [
             'model'      => config('ai.anthropic.model'),
@@ -63,21 +68,29 @@ class AiService
         $content = $response->json('content', []);
         $this->count($payload, $content, $response->json('usage.input_tokens'), $response->json('usage.output_tokens'));
 
-        // Handle tool_use block: execute the tool and send result back
-        foreach ($content as $block) {
-            if (($block['type'] ?? '') === 'tool_use' && AiRegistry::has($block['name'])) {
-                $toolResult = AiRegistry::execute($block['name'], $block['input'] ?? []);
+        // Handle tool_use blocks: the model may ask for several tools at once, all get an answer
+        $toolUses = array_filter($content, fn ($block) => ($block['type'] ?? '') === 'tool_use');
 
-                $messages[] = ['role' => 'assistant', 'content' => $content];
-                $messages[] = ['role' => 'user', 'content' => [[
+        if ($toolUses !== []) {
+            $results = [];
+
+            foreach ($toolUses as $block) {
+                $toolResult = AiRegistry::has($block['name'])
+                    ? AiRegistry::execute($block['name'], $block['input'] ?? [])
+                    : 'Tool not found.';
+
+                $results[] = [
                     'type'        => 'tool_result',
                     'tool_use_id' => $block['id'],
                     'content'     => is_string($toolResult) ? $toolResult : json_encode($toolResult),
-                ]]];
-
-                // Second call with tool result — no tools this round to avoid loops
-                return $this->chatAnthropic($messages, false);
+                ];
             }
+
+            $messages[] = ['role' => 'assistant', 'content' => $content];
+            $messages[] = ['role' => 'user', 'content' => $results];
+
+            // Tools stay available until the cap: the last round has to produce an answer.
+            return $this->chatAnthropic($messages, $this->toolsStillAllowed($round + 1), $round + 1);
         }
 
         // Return the first text block
@@ -90,7 +103,7 @@ class AiService
         return '';
     }
 
-    protected function chatOpenAi(array $messages, bool $withTools): string
+    protected function chatOpenAi(array $messages, bool $withTools, int $round = 0): string
     {
         $payload = [
             'model'      => config('ai.openai.model'),
@@ -136,7 +149,8 @@ class AiService
                 ];
             }
 
-            return $this->chatOpenAi($messages, false);
+            // Tools stay available until the cap: the last round has to produce an answer.
+            return $this->chatOpenAi($messages, $this->toolsStillAllowed($round + 1), $round + 1);
         }
 
         return $message['content'] ?? '';
@@ -176,6 +190,15 @@ class AiService
      * Count the tokens of one provider call: the reported usage when the
      * API returns it, an estimate on the payload otherwise.
      */
+    /**
+     * True while the model may still call tools. The last round is asked without them, so it
+     * has to answer instead of looping; the cap also bounds the cost of a single question.
+     */
+    protected function toolsStillAllowed(int $round): bool
+    {
+        return $round < (int) config('ai.widget.max_tool_rounds', self::MAX_TOOL_ROUNDS);
+    }
+
     protected function count(array $payload, mixed $reply, ?int $input, ?int $output): void
     {
         $input  ??= AiUsage::estimate(json_encode($payload));
