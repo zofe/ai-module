@@ -5,6 +5,7 @@ namespace Zofe\Ai\Livewire;
 use App\Modules\Auth\Traits\Authorize;
 use Livewire\Component;
 use Zofe\Ai\AiRegistry;
+use Zofe\Ai\Services\AiService;
 use Zofe\Ai\Services\AiUsage;
 use Zofe\Rapyd\Ai\AiDevelopment;
 
@@ -50,6 +51,9 @@ class DevelopWithAi extends Component
             default => 'local',
         };
 
+        $registered = array_map(fn ($tool) => $tool->name, AiRegistry::tools());
+        $offered = array_map(fn ($tool) => $tool->name, app(AiService::class)->tools());
+
         return [
             'provider' => $provider,
             'model' => config("ai.{$provider}.model"),
@@ -58,7 +62,9 @@ class DevelopWithAi extends Component
             'widget' => (bool) config('ai.widget.enabled'),
             'mode' => config('ai.widget.mode', 'operator'),
             'knowledge' => config('ai.widget.knowledge'),
-            'tools' => array_map(fn ($tool) => $tool['name'] ?? '?', AiRegistry::definitions()),
+            'tools' => $offered,
+            // Registered by a module but kept out by `ai.widget.tools`: the perimeter, visible.
+            'tools_withheld' => array_values(array_diff($registered, $offered)),
             'today' => $usage->today(),
             'days' => $usage->lastDays(),
             'budget' => $usage->budget(),

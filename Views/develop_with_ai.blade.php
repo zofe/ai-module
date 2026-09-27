@@ -169,7 +169,12 @@
                 <dt class="col-sm-3">{{ __('Provider') }}</dt><dd class="col-sm-9">{{ $runtime['provider'] }}@if($runtime['base_url']) · {{ $runtime['base_url'] }}@endif</dd>
                 <dt class="col-sm-3">{{ __('Model') }}</dt><dd class="col-sm-9">{{ $runtime['model'] }}</dd>
                 <dt class="col-sm-3">{{ __('Widget') }}</dt><dd class="col-sm-9">{{ $runtime['widget'] ? __('enabled') : __('disabled') }}, {{ __('mode') }} {{ $runtime['mode'] }} ({{ $runtime['mode'] === 'customer' ? __('text only, for a public site') : __('can use the tools of the modules on the application data') }})@if($runtime['knowledge']), {{ __('knowledge') }} {{ $runtime['knowledge'] }}@endif</dd>
-                <dt class="col-sm-3">{{ __('Tools') }}</dt><dd class="col-sm-9">{{ $runtime['tools'] ? implode(', ', $runtime['tools']) : __('none registered (modules implement AiToolProvider)') }}</dd>
+                <dt class="col-sm-3">{{ __('Tools') }}</dt><dd class="col-sm-9">
+                    {{ $runtime['tools'] ? implode(', ', $runtime['tools']) : __('none registered (modules implement AiToolProvider)') }}
+                    @if($runtime['tools_withheld'])
+                        <div class="small text-muted">{{ __('Registered but out of the perimeter (:setting): :tools', ['setting' => 'ai.widget.tools', 'tools' => implode(', ', $runtime['tools_withheld'])]) }}</div>
+                    @endif
+                </dd>
                 <dt class="col-sm-3">{{ __('Prices') }}</dt><dd class="col-sm-9">{{ $runtime['prices'][0] }} / {{ $runtime['prices'][1] }} {{ __('$ per million tokens (input / output)') }}</dd>
                 <dt class="col-sm-3">{{ __('Daily budget') }}</dt><dd class="col-sm-9">{{ $runtime['budget'] > 0 ? $money($runtime['budget']) : __('none (set AI_DAILY_BUDGET on a public site)') }}</dd>
             </dl>

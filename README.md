@@ -18,6 +18,10 @@ AI_OPENAI_BASE_URL=https://api.deepseek.com/v1
 AI_MODEL=deepseek-chat
 AI_SYSTEM_PROMPT="You are the assistant of ..."   # optional, default: a brief from rpd:context
 AI_KNOWLEDGE=resources/ai/knowledge.md            # optional: what the bot knows about the product
+AI_WIDGET_TITLE="Ticket assistant"                # optional: what the panel calls itself
+AI_WIDGET_INTRO="Ask about the tickets: how many, of what kind, in which month."
+AI_WIDGET_EXAMPLES="How many tickets in September?|Which problems are growing?"
+AI_WIDGET_TOOLS=tickets_*                         # optional: the tools the assistant may use
 ```
 
 Then `@aiWidget` in the layout (rapyd-admin's reference theme already prints it).
@@ -30,6 +34,59 @@ Then `@aiWidget` in the layout (rapyd-admin's reference theme already prints it)
 - **operator**: the registered `AiTool`s (see `Zofe\Rapyd\Contracts\AiToolProvider`) are offered to the model, so it
   can read the application's data. Tools go only to logged-in users, and to those holding `AI_TOOLS_PERMISSION` when
   it is set. A guest never gets tools, whatever the mode.
+
+## What the panel says about itself
+
+The defaults describe the module, not your application: in operator mode the empty panel offers "your application data,
+logs, users, or anything else", which is wrong the moment the assistant is there for one subject. `ai.widget.title` and
+`ai.widget.intro` replace both (`null` = the wording of the module, translated into the language of the page).
+
+`ai.widget.examples` is the part that earns its keep: two or three questions shown as buttons in the empty panel. They
+teach what can be asked here better than any description, and a click sends the question as if it had been typed. The
+index is resolved against the config server-side, so the panel asks what you wrote and nothing else.
+
+```php
+'title'    => 'Ticket assistant',
+'intro'    => 'Ask about the tickets: how many, of what kind, in which month.',
+'examples' => ['Which problems grew in the last three months?', 'How many tickets about connectivity in September?'],
+```
+
+## The perimeter of the tools
+
+`AiRegistry` collects the tools of **every** installed module, and some arrive without being asked for: rapyd-admin's
+Log module registers `get_recent_errors` and `get_error_summary`, so a chat widget meant for sales data can read the
+application log. `ai.widget.tools` is the allow-list that decides what the assistant is offered, names with `*`
+wildcards, empty = everything:
+
+```dotenv
+AI_WIDGET_TOOLS=tickets_*,category_*
+```
+
+Tools left out stay registered — other code can still call them — but they are neither sent to the provider nor
+executed if the model names one anyway. "Develop with AI" shows both lists, so the perimeter is visible.
+
+## A system prompt that depends on the data
+
+`ai.widget.system_prompt` takes a string, but a prompt that has to say what today's date is, or which categories exist,
+cannot be a constant in `.env`. Give it the name of an invokable class instead: it is resolved from the container and
+called at every request, so it is never frozen in the config cache.
+
+```php
+// config/ai.php
+'system_prompt' => \App\Modules\TicketReport\Ai\AssistantPrompt::class,
+```
+
+```php
+class AssistantPrompt
+{
+    public function __invoke(): string
+    {
+        return "You are the assistant of ... Today is " . now()->isoFormat('D MMMM YYYY') . " ...";
+    }
+}
+```
+
+The widget and any other caller of `AiService` then share one assistant: same voice, same rules, same perimeter.
 
 ## What the bot knows
 
@@ -80,8 +137,8 @@ shows the developers of the application what Rapyd Admin gives their coding assi
   tokens the model did not have to write) or by hand, and whether it follows the conventions: authorized pages,
   permissions, `Limits/`, tests, workflows.
 - **Try it**: prompts to copy into the agent, each saying which packages it needs.
-- **AI in the app**: provider and model, widget mode, the tools the modules registered, the spend of the last 7 days
-  against the daily budget.
+- **AI in the app**: provider and model, widget mode, the tools the assistant is offered and the ones an allow-list
+  holds back, the spend of the last 7 days against the daily budget.
 
 This is rapyd-admin's `php artisan rpd:ai:develop`, as a page. Nothing on it calls a provider.
 

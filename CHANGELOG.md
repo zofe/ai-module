@@ -1,5 +1,22 @@
 # Changelog
 
+## [1.4.0] - 2026-09-27
+
+- **What the panel says about itself is configurable**: `ai.widget.title` and `ai.widget.intro`
+  (`AI_WIDGET_TITLE`, `AI_WIDGET_INTRO`). The defaults describe the module — in operator mode the empty panel
+  promised "your application data, logs, users" — which is wrong as soon as the assistant is there for one subject.
+- **`ai.widget.examples`**: two or three questions shown as buttons in the empty panel (`AI_WIDGET_EXAMPLES`,
+  "|"-separated). A click asks the question; the index is resolved against the config server-side.
+- **`ai.widget.tools`**: the allow-list of tools the assistant may use, names with `*` wildcards
+  (`AI_WIDGET_TOOLS=tickets_*`). `AiRegistry` collects the tools of every installed module, rapyd-admin's log
+  reader included: until now an application had no way to say which data its chatbot could reach. Tools left out
+  stay registered but are neither offered nor executed. "Develop with AI" lists the ones held back.
+- **`ai.widget.system_prompt` accepts the name of an invokable class** (or a closure), resolved from the container
+  and called at every request: a prompt that depends on the data of the moment no longer has to be a constant in
+  `.env`, and every caller of `AiService` shares one assistant.
+- The panel title, the empty-panel line, the rate-limit and budget refusals and the provider-error message go
+  through `__()`: they were hardcoded English next to a translated placeholder.
+
 ## [1.3.2] - 2026-09-21
 
 - The example prompts are shown and copied in the language of the page (translations in rapyd-admin 9.17.3).

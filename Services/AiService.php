@@ -3,6 +3,7 @@
 namespace Zofe\Ai\Services;
 
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Str;
 use Zofe\Ai\AiRegistry;
 
 class AiService
@@ -55,8 +56,8 @@ class AiService
             'messages'   => $messages,
         ];
 
-        if ($withTools && count(AiRegistry::tools()) > 0) {
-            $payload['tools'] = AiRegistry::definitions();
+        if ($withTools && count($this->tools()) > 0) {
+            $payload['tools'] = $this->definitions();
         }
 
         $response = Http::withHeaders([
@@ -75,7 +76,7 @@ class AiService
             $results = [];
 
             foreach ($toolUses as $block) {
-                $toolResult = AiRegistry::has($block['name'])
+                $toolResult = $this->allows($block['name'])
                     ? AiRegistry::execute($block['name'], $block['input'] ?? [])
                     : 'Tool not found.';
 
@@ -114,7 +115,7 @@ class AiService
             ),
         ];
 
-        if ($withTools && count(AiRegistry::tools()) > 0) {
+        if ($withTools && count($this->tools()) > 0) {
             $payload['tools'] = array_map(fn ($def) => [
                 'type'     => 'function',
                 'function' => [
@@ -122,7 +123,7 @@ class AiService
                     'description' => $def['description'],
                     'parameters'  => $def['input_schema'],
                 ],
-            ], AiRegistry::definitions());
+            ], $this->definitions());
         }
 
         $response = Http::withToken(config('ai.openai.key'))
@@ -140,7 +141,7 @@ class AiService
             foreach ($message['tool_calls'] as $call) {
                 $toolName   = $call['function']['name'];
                 $toolInput  = json_decode($call['function']['arguments'], true) ?? [];
-                $toolResult = AiRegistry::has($toolName) ? AiRegistry::execute($toolName, $toolInput) : 'Tool not found.';
+                $toolResult = $this->allows($toolName) ? AiRegistry::execute($toolName, $toolInput) : 'Tool not found.';
 
                 $messages[] = [
                     'role'         => 'tool',
@@ -161,8 +162,8 @@ class AiService
         // Ollama's tool-use support varies by model; fall back to context injection
         $systemWithContext = $this->systemPrompt();
 
-        if ($withTools && count(AiRegistry::tools()) > 0) {
-            $toolDescriptions = collect(AiRegistry::tools())
+        if ($withTools && count($this->tools()) > 0) {
+            $toolDescriptions = collect($this->tools())
                 ->map(fn ($t) => "- {$t->name}: {$t->description}")
                 ->join("\n");
             $systemWithContext .= "\n\nAvailable tools (answer from your knowledge or call them by name):\n{$toolDescriptions}";
@@ -184,6 +185,60 @@ class AiService
         $this->count($payload, $reply, $response->json('prompt_eval_count'), $response->json('eval_count'));
 
         return $reply;
+    }
+
+    // -------------------------------------------------------------------------
+
+    /**
+     * The tools the assistant may actually use: what the modules registered, kept to the
+     * allow-list `ai.widget.tools` (names with "*" wildcards). An empty list means every
+     * registered tool -- including those of packages the application did not think about,
+     * such as the log reader of rapyd-admin's Log module. AiRegistry keeps saying what is
+     * registered; this says what is offered.
+     *
+     * @return \Zofe\Rapyd\Contracts\AiTool[]
+     */
+    public function tools(): array
+    {
+        $allowed = $this->allowList();
+
+        if ($allowed === []) {
+            return AiRegistry::tools();
+        }
+
+        return array_values(array_filter(
+            AiRegistry::tools(),
+            fn ($tool) => Str::is($allowed, $tool->name),
+        ));
+    }
+
+    /** The definitions of those tools, ready for the provider. */
+    public function definitions(): array
+    {
+        return array_map(fn ($tool) => $tool->toDefinition(), $this->tools());
+    }
+
+    /**
+     * True when the tool is registered and within the allow-list: a model that names a tool
+     * it was never offered gets "Tool not found." instead of a reply built on it.
+     */
+    public function allows(string $name): bool
+    {
+        if (! AiRegistry::has($name)) {
+            return false;
+        }
+
+        $allowed = $this->allowList();
+
+        return $allowed === [] || Str::is($allowed, $name);
+    }
+
+    /** @return list<string> */
+    protected function allowList(): array
+    {
+        $allowed = config('ai.widget.tools', []);
+
+        return array_values(array_filter(array_map('trim', (array) $allowed)));
     }
 
     /**
@@ -215,7 +270,7 @@ class AiService
      */
     public function systemPrompt(): string
     {
-        $prompt = config('ai.widget.system_prompt') ?: $this->autoPrompt();
+        $prompt = $this->configuredPrompt() ?: $this->autoPrompt();
 
         $knowledge = $this->knowledge->text();
         if ($knowledge !== '') {
@@ -231,6 +286,28 @@ class AiService
         }
 
         return $prompt;
+    }
+
+    /**
+     * `ai.widget.system_prompt` as text. A string is the prompt itself; the name of a class is
+     * resolved from the container and invoked, so a prompt that depends on the data of the
+     * moment (today's date, the categories that exist) is rebuilt at every call instead of
+     * being frozen in the config cache. A closure set from a service provider works too.
+     */
+    protected function configuredPrompt(): string
+    {
+        $prompt = config('ai.widget.system_prompt');
+
+        // Only a class name is resolved: a string is never taken for a function name.
+        if (is_string($prompt) && $prompt !== '' && class_exists($prompt)) {
+            $prompt = app($prompt);
+        }
+
+        if ($prompt instanceof \Closure || (is_object($prompt) && method_exists($prompt, '__invoke'))) {
+            $prompt = $prompt();
+        }
+
+        return is_string($prompt) ? trim($prompt) : '';
     }
 
     protected function autoPrompt(): string

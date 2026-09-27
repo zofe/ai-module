@@ -201,4 +201,104 @@ class AiWidgetTest extends TestCase
         Livewire::actingAs($this->user())->test(AiWidget::class)->set('input', 'how many users?')->call('send');
         $this->assertArrayNotHasKey('tools', $this->lastPayload(), 'without the permission: no tools');
     }
+
+    public function test_the_panel_says_what_the_application_configured()
+    {
+        config(['ai.widget.mode' => 'operator']);
+
+        Livewire::test(AiWidget::class)
+            ->assertSee('AI Assistant')
+            ->assertSee('Ask me about your application data');
+
+        config([
+            'ai.widget.title' => 'Ticket assistant',
+            'ai.widget.intro' => 'Ask about the tickets: how many, of what kind, in which month.',
+        ]);
+
+        Livewire::test(AiWidget::class)
+            ->assertSee('Ticket assistant')
+            ->assertDontSee('AI Assistant')
+            ->assertSee('Ask about the tickets')
+            ->assertDontSee('logs, users');
+    }
+
+    public function test_an_example_is_asked_by_its_index_and_nothing_else_is()
+    {
+        $this->fakeProvider('Forty-two.');
+        config(['ai.widget.examples' => ['How many tickets in September?', 'Which problems are growing?']]);
+
+        Livewire::test(AiWidget::class)
+            ->assertSee('Which problems are growing?')
+            ->call('ask', 1)
+            ->assertSee('Which problems are growing?')
+            ->assertSee('Forty-two.');
+
+        $messages = $this->lastPayload()['messages'];
+        $this->assertSame('Which problems are growing?', end($messages)['content']);
+
+        // An index the application never offered asks nothing at all.
+        Livewire::test(AiWidget::class)->call('ask', 9)->assertSet('input', '');
+    }
+
+    public function test_the_allow_list_keeps_the_assistant_to_the_tools_of_its_subject()
+    {
+        $this->fakeProvider();
+        config(['ai.widget.mode' => 'operator', 'ai.widget.tools' => ['tickets_*']]);
+        AiRegistry::register(new class implements AiToolProvider {
+            public function tools(): array
+            {
+                return [
+                    new AiTool('tickets_count', 'Counts the tickets', ['type' => 'object'], fn () => 7),
+                    new AiTool('get_recent_errors', 'Reads the application log', ['type' => 'object'], fn () => 'boom'),
+                ];
+            }
+        });
+
+        Livewire::actingAs($this->user())->test(AiWidget::class)->set('input', 'any errors?')->call('send');
+
+        $offered = array_map(fn ($tool) => $tool['function']['name'], $this->lastPayload()['tools']);
+        $this->assertSame(['tickets_count'], $offered, 'the log tool stays registered but is not offered');
+
+        // A model that names a tool it was never offered does not get it executed.
+        $service = app(\Zofe\Ai\Services\AiService::class);
+        $this->assertTrue($service->allows('tickets_count'));
+        $this->assertFalse($service->allows('get_recent_errors'));
+        $this->assertFalse($service->allows('unknown_tool'));
+    }
+
+    public function test_the_system_prompt_can_be_a_class_rebuilt_at_every_call()
+    {
+        $this->fakeProvider();
+        config(['ai.widget.system_prompt' => AiWidgetTestPrompt::class]);
+
+        Livewire::test(AiWidget::class)->set('input', 'hi')->call('send');
+        $first = $this->lastPayload()['messages'][0]['content'];
+
+        Livewire::test(AiWidget::class)->set('input', 'hi again')->call('send');
+        $second = $this->lastPayload()['messages'][0]['content'];
+
+        $this->assertStringStartsWith('Prompt number ', $first);
+        $this->assertNotSame($first, $second, 'the class is invoked at every call, not frozen in the config');
+    }
+
+    public function test_a_plain_string_prompt_is_still_the_prompt()
+    {
+        $this->fakeProvider();
+        config(['ai.widget.system_prompt' => 'trim']);   // a function name is text, not a callable
+
+        Livewire::test(AiWidget::class)->set('input', 'hi')->call('send');
+
+        $this->assertStringStartsWith('trim', $this->lastPayload()['messages'][0]['content']);
+    }
+}
+
+/** A system prompt that changes every time it is built. */
+class AiWidgetTestPrompt
+{
+    public static int $calls = 0;
+
+    public function __invoke(): string
+    {
+        return 'Prompt number ' . ++self::$calls;
+    }
 }

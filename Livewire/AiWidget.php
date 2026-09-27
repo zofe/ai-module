@@ -28,6 +28,20 @@ class AiWidget extends Component
         $this->mode = config('ai.widget.mode', 'operator');
     }
 
+    /**
+     * One of the configured examples becomes the question. The index is read against the
+     * config, so the panel offers what the application wrote and nothing else.
+     */
+    public function ask(int $index): void
+    {
+        $examples = $this->examples();
+
+        if (isset($examples[$index])) {
+            $this->input = $examples[$index];
+            $this->send();
+        }
+    }
+
     public function send(): void
     {
         $text = trim($this->input);
@@ -69,7 +83,7 @@ class AiWidget extends Component
             Log::error('ai-widget: ' . $e->getMessage(), ['exception' => $e]);
             $this->messages[] = [
                 'role'    => 'assistant',
-                'content' => config('app.debug') ? 'Error: ' . $e->getMessage() : 'The assistant is not available right now. Please try again later.',
+                'content' => config('app.debug') ? 'Error: ' . $e->getMessage() : __('The assistant is not available right now. Please try again later.'),
                 'error'   => true,
             ];
         }
@@ -85,7 +99,48 @@ class AiWidget extends Component
 
     public function render()
     {
-        return view('ai::ai_widget');
+        return view('ai::ai_widget', [
+            'title'    => $this->title(),
+            'intro'    => $this->intro(),
+            'examples' => $this->examples(),
+        ]);
+    }
+
+    /**
+     * The name of the panel. `ai.widget.title` when the application set one: "AI Assistant"
+     * says what it is, not what it is for here.
+     */
+    public function title(): string
+    {
+        return trim((string) config('ai.widget.title'))
+            ?: ($this->mode === 'operator' ? __('AI Assistant') : __('Support'));
+    }
+
+    /**
+     * The line of the empty panel. The default of the operator mode promises the data, the
+     * logs and the users of the application: an application that scoped the assistant to one
+     * subject (or took the log tools away with `ai.widget.tools`) has to say so instead.
+     */
+    public function intro(): string
+    {
+        return trim((string) config('ai.widget.intro'))
+            ?: ($this->mode === 'operator'
+                ? __('Ask me about your application data, logs, users, or anything else.')
+                : __('How can I help you today?'));
+    }
+
+    /**
+     * Questions offered as buttons while the panel is empty: three of them teach what can be
+     * asked here better than any description.
+     *
+     * @return list<string>
+     */
+    public function examples(): array
+    {
+        return array_values(array_filter(array_map(
+            fn ($example) => trim((string) $example),
+            (array) config('ai.widget.examples', []),
+        )));
     }
 
     // -------------------------------------------------------------------------
@@ -95,11 +150,11 @@ class AiWidget extends Component
     {
         $maxInput = (int) config('ai.widget.max_input', 500);
         if ($maxInput > 0 && mb_strlen($text) > $maxInput) {
-            return "Please keep your message under {$maxInput} characters.";
+            return __('Please keep your message under :max characters.', ['max' => $maxInput]);
         }
 
         if (app(AiUsage::class)->exhausted()) {
-            return 'The assistant has reached its daily budget and is paused until tomorrow.';
+            return __('The assistant has reached its daily budget and is paused until tomorrow.');
         }
 
         $limit  = (int) config('ai.widget.rate_limit', 20);
@@ -115,7 +170,7 @@ class AiWidget extends Component
 
         $interval = (int) config('ai.widget.min_interval', 2);
         if ($interval > 0 && RateLimiter::tooManyAttempts($this->intervalKey(), 1)) {
-            return 'One message at a time, please: wait a moment and try again.';
+            return __('One message at a time, please: wait a moment and try again.');
         }
 
         return null;
@@ -167,7 +222,8 @@ class AiWidget extends Component
         $minutes = max(1, (int) ceil($seconds / 60));
         $per     = $window >= 3600 ? ($window / 3600) . 'h' : ($window / 60) . 'min';
 
-        return "Rate limit reached ({$limit} requests / {$per}). Try again in {$minutes} minute" . ($minutes !== 1 ? 's' : '') . '.';
+        return __('Rate limit reached (:limit requests / :per).', ['limit' => $limit, 'per' => $per])
+            . ' ' . trans_choice('Try again in :count minute.|Try again in :count minutes.', $minutes, ['count' => $minutes]);
     }
 
     protected function sessionKey(): string

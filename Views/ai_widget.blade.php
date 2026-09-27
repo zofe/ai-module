@@ -8,7 +8,7 @@
         x-on:click="open = !open"
         class="btn btn-primary rounded-circle shadow-lg d-flex align-items-center justify-content-center"
         style="width: 52px; height: 52px;"
-        title="{{ $mode === 'operator' ? __('AI Assistant') : __('Support') }}"
+        title="{{ $title }}"
     >
         <i class="fas" :class="open ? 'fa-times' : 'fa-robot'"></i>
     </button>
@@ -33,7 +33,7 @@
         <div class="card-header d-flex align-items-center justify-content-between py-2 px-3 bg-primary text-white">
             <span class="fw-semibold">
                 <i class="fas fa-robot me-1"></i>
-                {{ $mode === 'operator' ? 'AI Assistant' : 'Support' }}
+                {{ $title }}
             </span>
             @if(count($messages) > 0)
             <button wire:click="clear" class="btn btn-sm btn-link text-white p-0" title="{{ __('Clear') }}">
@@ -58,12 +58,20 @@
             @elseif(empty($messages))
                 <div class="text-center text-muted mt-4" style="font-size: 13px;">
                     <i class="fas fa-robot fa-2x mb-2 d-block opacity-50"></i>
-                    @if($mode === 'operator')
-                        Ask me about your application data,<br>logs, users, or anything else.
-                    @else
-                        How can I help you today?
-                    @endif
+                    {{ $intro }}
                 </div>
+                @if($examples)
+                    {{-- Example questions teach the perimeter better than a description does --}}
+                    <div class="d-grid gap-2 mt-3 px-1">
+                        @foreach($examples as $i => $example)
+                            <button type="button" wire:click="ask({{ $i }})" :disabled="$wire.loading"
+                                    class="btn btn-sm btn-outline-secondary text-start text-wrap"
+                                    style="font-size: 12px; line-height: 1.4;">
+                                <i class="fas fa-arrow-right me-1 opacity-50"></i>{{ $example }}
+                            </button>
+                        @endforeach
+                    </div>
+                @endif
             @endif
 
             @foreach($messages as $message)

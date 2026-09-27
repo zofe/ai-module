@@ -57,7 +57,27 @@ return [
     'widget' => [
         'enabled'       => env('AI_WIDGET_ENABLED', false),
         'mode'          => env('AI_WIDGET_MODE', 'operator'), // operator | customer
+
+        // The system prompt. A string is used as it is; the name of a class is resolved from
+        // the container and invoked (`__invoke(): string`), so a prompt that changes with the
+        // data -- today's date, the categories that exist -- is built at every call.
         'system_prompt' => env('AI_SYSTEM_PROMPT', null),     // null = auto-generated from rpd:context
+
+        // What the panel says about itself. null = the wording of the module, translated.
+        // Say what the assistant is for here: the default promises "data, logs, users", which
+        // is wrong as soon as an application scopes it to one subject.
+        'title'         => env('AI_WIDGET_TITLE', null),
+        'intro'         => env('AI_WIDGET_INTRO', null),      // the line of the empty panel
+        // Questions offered as buttons in the empty panel: they teach what can be asked
+        // better than a description does. Array, or a "|"-separated list in the env.
+        'examples'      => array_values(array_filter(array_map('trim',
+            explode('|', (string) env('AI_WIDGET_EXAMPLES', ''))))),
+
+        // The tools the assistant may use, as an allow-list of names with "*" wildcards
+        // (["tickets_*"]). Empty = every tool the modules registered, which includes the ones
+        // of packages you did not think about: the log reader of rapyd-admin, for instance.
+        'tools'         => array_values(array_filter(array_map('trim',
+            explode(',', (string) env('AI_WIDGET_TOOLS', ''))))),
 
         // Knowledge base appended to the system prompt: a markdown file (path
         // relative to the app root or absolute) or an http(s) URL (cached 1h).
