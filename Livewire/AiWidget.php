@@ -67,7 +67,17 @@ class AiWidget extends Component
                 withTools: $this->toolsAllowed(),
             );
 
-            $this->messages[] = ['role' => 'assistant', 'content' => $reply];
+            // What the answer cost travels with it: a conversation that is saved keeps its
+            // price, and the property is locked so the browser cannot rewrite it.
+            $cost = app(AiUsage::class)->cost($service->lastInput, $service->lastOutput);
+
+            $this->messages[] = [
+                'role'    => 'assistant',
+                'content' => $reply,
+                'in'      => $service->lastInput,
+                'out'     => $service->lastOutput,
+                'cost'    => $cost,
+            ];
 
             if (config('ai.widget.log_usage', true)) {
                 Log::info('ai-widget', [
@@ -76,7 +86,7 @@ class AiWidget extends Component
                     'user'   => auth()->id(),
                     'input'  => $service->lastInput,
                     'output' => $service->lastOutput,
-                    'cost'   => round(app(AiUsage::class)->cost($service->lastInput, $service->lastOutput), 5),
+                    'cost'   => round($cost, 5),
                 ]);
             }
         } catch (\Throwable $e) {
@@ -92,6 +102,56 @@ class AiWidget extends Component
         $this->loading  = false;
     }
 
+    /**
+     * Hands the conversation to `ai.widget.on_save` and follows where it says to go. The
+     * chat of the panel is thrown away when the page changes; this is how an application
+     * keeps one. Nothing is sent to the provider here.
+     */
+    public function save()
+    {
+        if (! $this->canSave()) {
+            return null;
+        }
+
+        try {
+            $url = app(config('ai.widget.on_save'))($this->messages);
+        } catch (\Throwable $e) {
+            Log::error('ai-widget save: ' . $e->getMessage(), ['exception' => $e]);
+            $this->messages[] = [
+                'role'    => 'assistant',
+                'content' => config('app.debug') ? 'Error: ' . $e->getMessage() : __('This conversation could not be saved.'),
+                'error'   => true,
+            ];
+
+            return null;
+        }
+
+        return $url ? $this->redirect($url, navigate: false) : null;
+    }
+
+    /** True when the application offered an action and there is an answer worth keeping. */
+    public function canSave(): bool
+    {
+        $handler = config('ai.widget.on_save');
+
+        if (! $handler || ! is_string($handler) || ! class_exists($handler)) {
+            return false;
+        }
+
+        foreach ($this->messages as $message) {
+            if ($message['role'] === 'assistant' && empty($message['error'])) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public function saveLabel(): string
+    {
+        return trim((string) config('ai.widget.save_label')) ?: __('Save this conversation');
+    }
+
     public function clear(): void
     {
         $this->messages = [];
@@ -103,6 +163,8 @@ class AiWidget extends Component
             'title'    => $this->title(),
             'intro'    => $this->intro(),
             'examples' => $this->examples(),
+            'canSave'  => $this->canSave(),
+            'saveLabel' => $this->saveLabel(),
         ]);
     }
 

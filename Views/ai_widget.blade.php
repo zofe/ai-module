@@ -35,11 +35,18 @@
                 <i class="fas fa-robot me-1"></i>
                 {{ $title }}
             </span>
-            @if(count($messages) > 0)
-            <button wire:click="clear" class="btn btn-sm btn-link text-white p-0" title="{{ __('Clear') }}">
-                <i class="fas fa-trash-alt fa-xs"></i>
-            </button>
-            @endif
+            <span class="d-flex align-items-center gap-2">
+                @if($canSave)
+                <button wire:click="save" wire:loading.attr="disabled" class="btn btn-sm btn-link text-white p-0" title="{{ $saveLabel }}">
+                    <i class="fas fa-bookmark fa-xs"></i>
+                </button>
+                @endif
+                @if(count($messages) > 0)
+                <button wire:click="clear" class="btn btn-sm btn-link text-white p-0" title="{{ __('Clear') }}">
+                    <i class="fas fa-trash-alt fa-xs"></i>
+                </button>
+                @endif
+            </span>
         </div>
 
         {{-- Messages --}}

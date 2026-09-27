@@ -88,6 +88,33 @@ class AssistantPrompt
 
 The widget and any other caller of `AiService` then share one assistant: same voice, same rules, same perimeter.
 
+## Keeping a conversation
+
+A chat in the panel is thrown away when the page changes. `ai.widget.on_save` is how an application offers to keep
+one: the name of an invokable class that receives the messages and returns the URL to send the user to (`null` to
+stay where they are). A bookmark appears in the header of the panel as soon as there is an answer worth keeping.
+
+```php
+'on_save'    => \App\Modules\TicketReport\Ai\SaveConversationAsReport::class,
+'save_label' => 'Save as report',
+```
+
+```php
+class SaveConversationAsReport
+{
+    /** @param list<array{role: string, content: string, in?: int, out?: int, cost?: float}> $messages */
+    public function __invoke(array $messages): ?string
+    {
+        $report = ...;   // whatever "keeping it" means in your application
+
+        return route('reports.show', $report);
+    }
+}
+```
+
+Each answer carries what it cost (`in`, `out`, `cost`), so what is saved keeps its price. The messages travel as
+JSON, so a whole cost arrives as an int: cast it. Nothing here calls the provider.
+
 ## What the bot knows
 
 `AI_KNOWLEDGE` points to a markdown file (path relative to the app root, or absolute) or to an URL (fetched once an

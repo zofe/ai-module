@@ -73,6 +73,17 @@ return [
         'examples'      => array_values(array_filter(array_map('trim',
             explode('|', (string) env('AI_WIDGET_EXAMPLES', ''))))),
 
+        // What a conversation of the panel can become. The name of an invokable class:
+        // it receives the messages and returns the URL to send the user to, or null to stay.
+        // A chat is thrown away when the panel closes; this is how an application offers to
+        // keep one -- as a report, a ticket, a note. null = no action, the panel only chats.
+        //
+        //     __invoke(array $messages): ?string
+        //     $messages: [['role' => 'user'|'assistant', 'content' => '...',
+        //                  'in' => int, 'out' => int, 'cost' => float], ...]
+        'on_save'       => null,
+        'save_label'    => null,   // what the action is called; null = "Save this conversation"
+
         // The tools the assistant may use, as an allow-list of names with "*" wildcards
         // (["tickets_*"]). Empty = every tool the modules registered, which includes the ones
         // of packages you did not think about: the log reader of rapyd-admin, for instance.

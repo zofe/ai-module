@@ -1,5 +1,15 @@
 # Changelog
 
+## [1.5.0] - 2026-09-27
+
+- **`ai.widget.on_save`**: what a conversation of the panel can become. The name of an invokable class that
+  receives the messages and returns the URL to go to; a bookmark shows in the header of the panel as soon as there
+  is an answer worth keeping (`ai.widget.save_label` names the action). A chat was thrown away when the page
+  changed: this is how an application offers to keep one — as a report, a ticket, a note. Nothing calls the provider.
+- Every answer of the panel now carries what it cost (`in`, `out`, `cost`) in the locked messages property, so a
+  conversation that is saved keeps its price.
+- A handler that throws leaves the conversation on screen and says so, instead of losing it.
+
 ## [1.4.0] - 2026-09-27
 
 - **What the panel says about itself is configurable**: `ai.widget.title` and `ai.widget.intro`

@@ -290,6 +290,89 @@ class AiWidgetTest extends TestCase
 
         $this->assertStringStartsWith('trim', $this->lastPayload()['messages'][0]['content']);
     }
+
+    public function test_a_conversation_can_be_handed_to_the_application_with_what_it_cost()
+    {
+        $this->fakeProvider('Two hundred tickets.', in: 1_000_000, out: 1_000_000);
+        config([
+            'ai.widget.on_save' => AiWidgetTestSaver::class,
+            'ai.budget.price_input' => 0.3,
+            'ai.budget.price_output' => 1.2,
+        ]);
+        AiWidgetTestSaver::$seen = [];
+
+        Livewire::test(AiWidget::class)
+            ->assertDontSee('fa-bookmark', false)
+            ->set('input', 'how many tickets?')
+            ->call('send')
+            ->assertSee('fa-bookmark', false)
+            ->call('save')
+            ->assertRedirect('/reports/1');
+
+        $this->assertSame(
+            ['how many tickets?', 'Two hundred tickets.'],
+            array_column(AiWidgetTestSaver::$seen, 'content'),
+        );
+
+        // The messages travel as JSON, so a whole cost comes back as an int: a handler
+        // that stores it casts to float.
+        $answer = AiWidgetTestSaver::$seen[1];
+        $this->assertSame(1_000_000, $answer['in']);
+        $this->assertEqualsWithDelta(1.5, $answer['cost'], 0.0001, 'input at 0.3 plus output at 1.2 per million');
+    }
+
+    public function test_nothing_is_offered_to_save_until_there_is_an_answer()
+    {
+        config(['ai.widget.on_save' => AiWidgetTestSaver::class]);
+        $this->assertFalse(Livewire::test(AiWidget::class)->instance()->canSave());
+
+        // An error is not an answer worth keeping.
+        Http::fake(['api.test/*' => Http::response('boom', 500)]);
+        Log::spy();
+        $component = Livewire::test(AiWidget::class)->set('input', 'hi')->call('send');
+        $this->assertFalse($component->instance()->canSave());
+
+        // And without a handler the button never shows, however long the conversation.
+        $this->fakeProvider();
+        config(['ai.widget.on_save' => null]);
+        Livewire::test(AiWidget::class)->set('input', 'hi')->call('send')->assertDontSee('fa-bookmark', false);
+    }
+
+    public function test_a_handler_that_fails_says_so_instead_of_losing_the_conversation()
+    {
+        $this->fakeProvider('An answer.');
+        config(['ai.widget.on_save' => AiWidgetTestBrokenSaver::class]);
+        Log::spy();
+
+        Livewire::test(AiWidget::class)
+            ->set('input', 'hi')
+            ->call('send')
+            ->call('save')
+            ->assertNoRedirect()
+            ->assertSee('could not be saved')
+            ->assertSee('An answer.');
+    }
+}
+
+/** What an application does with a conversation it wants to keep. */
+class AiWidgetTestSaver
+{
+    public static array $seen = [];
+
+    public function __invoke(array $messages): ?string
+    {
+        self::$seen = $messages;
+
+        return '/reports/1';
+    }
+}
+
+class AiWidgetTestBrokenSaver
+{
+    public function __invoke(array $messages): ?string
+    {
+        throw new \RuntimeException('the database is on fire');
+    }
 }
 
 /** A system prompt that changes every time it is built. */
