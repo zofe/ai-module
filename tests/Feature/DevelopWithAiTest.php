@@ -4,13 +4,18 @@ namespace Zofe\Ai\Tests\Feature;
 
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Livewire\Livewire;
+use Zofe\Ai\AiRegistry;
 use Zofe\Ai\Livewire\DevelopWithAi;
 use Zofe\Ai\Services\AiUsage;
 use Zofe\Ai\Tests\TestCase;
+use Zofe\Rapyd\Contracts\AiActivity;
+use Zofe\Rapyd\Contracts\AiActivityProvider;
+use Zofe\Rapyd\Contracts\AiTool;
+use Zofe\Rapyd\Contracts\AiToolProvider;
 
 /**
- * The "Develop with AI" page: who may open it, what it says about the agent, the
- * modules, the prompts and the AI runtime.
+ * The AI page: who may open it; the side for the people who use the application (what the
+ * AI did, what it costs, what the assistant may read); the side for the developers.
  */
 class DevelopWithAiTest extends TestCase
 {
@@ -42,9 +47,44 @@ class DevelopWithAiTest extends TestCase
         Livewire::test(DevelopWithAi::class)->assertForbidden();
     }
 
-    public function test_the_page_shows_capabilities_generators_modules_prompts_and_the_spend()
+    public function test_the_side_for_the_people_who_use_the_application_shows_what_the_ai_did_and_what_it_costs()
     {
-        app(AiUsage::class)->record(1_000_000, 500_000);
+        config(['ai.budget.price_input' => 0.30, 'ai.budget.price_output' => 1.20]);
+        app(AiUsage::class)->record(1_000_000, 500_000, 'classify');
+        AiRegistry::registerActivities(new class implements AiActivityProvider {
+            public function activities(): array
+            {
+                return [
+                    new AiActivity('tickets_classified', 'Tickets classified', 8845, 'from 26 categories the AI proposed', 'classify', now()),
+                    new AiActivity('chat_sessions', 'Chat sessions', 3),
+                ];
+            }
+        });
+        AiRegistry::register(new class implements AiToolProvider {
+            public function tools(): array
+            {
+                return [new AiTool('tickets_count', 'Counts the tickets', ['type' => 'object'], fn () => 0)];
+            }
+        });
+        $this->actingAs($this->userWith(true));
+
+        Livewire::test(DevelopWithAi::class)
+            ->assertSee('AI in this application')
+            ->assertSee('Tickets classified')
+            ->assertSee('8,845')
+            ->assertSee('from 26 categories the AI proposed')
+            ->assertSee('Chat sessions')
+            ->assertSeeInOrder(['8,845', '0.9000 $'])   // the cost of the activity: 1M input at 0.30 + 0.5M output at 1.20
+            ->assertSee('This month')
+            ->assertSee('Since ' . now()->format('Y-m-d'))
+            ->assertSee('tickets_count')
+            ->assertSee('Counts the tickets')
+            ->assertDontSee('Try it: prompts')
+            ->assertDontSee('shop-module');
+    }
+
+    public function test_the_side_for_the_developers_is_there_unless_the_application_turned_it_off()
+    {
         $this->actingAs($this->userWith(true));
 
         Livewire::test(DevelopWithAi::class)
@@ -52,16 +92,15 @@ class DevelopWithAiTest extends TestCase
             ->assertSee('To unlock the rest')   // the testbench skeleton has no guideline
             ->assertSee('php artisan rpd:ai')
             ->assertSee('Knows Rapyd Admin')
-            ->assertSee('Builds modules')
             ->assertSee('rpd:make Things Thing')
-            ->assertSee('No module in')
-            ->assertSee('Try it: prompts for your agent')
-            ->assertSee('Add a Suppliers section')
-            ->assertSee('needs zofe/shop-module')
-            ->assertSee('Boilerplate written for you')
-            ->assertSee(now()->format('Y-m-d'))
-            ->assertSee('1,000,000')
-            ->assertSee('0.9000 $')   // 1M input at 0.30 + 0.5M output at 1.20
-            ->assertSeeInOrder(['Provider', 'openai', 'Widget', 'enabled, mode customer']);
+            ->assertSee('Boilerplate written for you');
+
+        config(['ai.develop' => false]);
+
+        Livewire::test(DevelopWithAi::class)
+            ->assertSee('AI in this application')
+            ->assertDontSee('Develop with AI')
+            ->assertDontSee('rpd:make Things Thing')
+            ->assertDontSee('Boilerplate written for you');
     }
 }

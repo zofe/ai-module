@@ -2,6 +2,8 @@
 
 namespace Zofe\Ai;
 
+use Zofe\Rapyd\Contracts\AiActivity;
+use Zofe\Rapyd\Contracts\AiActivityProvider;
 use Zofe\Rapyd\Contracts\AiTool;
 use Zofe\Rapyd\Contracts\AiToolProvider;
 
@@ -20,6 +22,9 @@ final class AiRegistry
 {
     /** @var array<string, AiTool> */
     private static array $tools = [];
+
+    /** @var AiActivityProvider[] */
+    private static array $activityProviders = [];
 
     public static function register(AiToolProvider $provider): void
     {
@@ -57,8 +62,31 @@ final class AiRegistry
         return static::$tools[$name]->execute($input);
     }
 
+    /**
+     * A module says what the AI did in it, for the people who use the application. The
+     * providers are kept, not their answers: the counts are read when the page is shown.
+     */
+    public static function registerActivities(AiActivityProvider $provider): void
+    {
+        static::$activityProviders[] = $provider;
+    }
+
+    /** @return AiActivity[] */
+    public static function activities(): array
+    {
+        $activities = [];
+        foreach (static::$activityProviders as $provider) {
+            foreach ($provider->activities() as $activity) {
+                $activities[$activity->key] = $activity;
+            }
+        }
+
+        return array_values($activities);
+    }
+
     public static function reset(): void
     {
         static::$tools = [];
+        static::$activityProviders = [];
     }
 }

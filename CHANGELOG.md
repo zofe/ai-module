@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.8.0] - 2026-09-27
+
+- **The AI page has two sides.** "AI in this application", for the people who use it: what the AI *did* — the
+  activities the modules declare through rapyd-admin's `AiActivityProvider` (`AiRegistry::registerActivities()`),
+  each with the cost of its ledger context next to it —, what it costs (today, this month, since the start, by
+  context), what the assistant may read (the tools with their descriptions, and the ones held back). "Develop with
+  AI", for the ones who develop it: the agent, the generators, what was built. Menu entry and breadcrumb are "AI".
+- `ai.develop` (`AI_DEVELOP_PAGE=false`) turns the developer side off, where the administrators are not the
+  developers.
+- The "Try it: prompts for your agent" section is gone from the page: it advertised modules, some of them paid,
+  to whoever opened the admin. `rpd:ai:develop` still prints the prompts in the console.
+- Requires rapyd-admin ^9.19 (`AiActivity`, `AiActivityProvider`).
+
 ## [1.7.0] - 2026-09-27
 
 - **The ledger**: one row in `ai_usage` per call to the provider — the context the caller declared, provider and

@@ -15,6 +15,13 @@ return [
     'menu_admin' => 'ai::admin_menu',
     'menu_admin_position' => 90,
 
+    // The AI page has two sides. "AI in this application" is for the people who use it: what
+    // the AI did (the activities the modules declare), what it costs, what the assistant may
+    // read. "Develop with AI" is for the ones who develop it: what the coding agent can do
+    // here, what was built, the generators. Turn the second off where the administrators are
+    // not the developers.
+    'develop' => (bool) env('AI_DEVELOP_PAGE', true),
+
     'permissions' => ['develop with ai'],
     'role_permissions' => [
         'operator' => ['develop with ai'],
