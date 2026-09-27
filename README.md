@@ -22,6 +22,7 @@ AI_WIDGET_TITLE="Ticket assistant"                # optional: what the panel cal
 AI_WIDGET_INTRO="Ask about the tickets: how many, of what kind, in which month."
 AI_WIDGET_EXAMPLES="How many tickets in September?|Which problems are growing?"
 AI_WIDGET_TOOLS=tickets_*                         # optional: the tools the assistant may use
+AI_WIDGET_REMEMBER=false                          # optional: do not keep the chat across pages
 ```
 
 Then `@aiWidget` in the layout (rapyd-admin's reference theme already prints it).
@@ -87,6 +88,13 @@ class AssistantPrompt
 ```
 
 The widget and any other caller of `AiService` then share one assistant: same voice, same rules, same perimeter.
+
+## The conversation between two pages
+
+The panel is re-created at every page load, so by default a chat used to end the moment the user went to look
+something up. It now waits in the user's session (`ai.widget.remember`, on): reopening the panel on another page
+finds it again, "clear" ends it for good, and saving it leaves the panel empty. Turn it off
+(`AI_WIDGET_REMEMBER=false`) where the session lives in a cookie (4 KB) or where a chat must not outlive the page.
 
 ## Keeping a conversation
 

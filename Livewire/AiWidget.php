@@ -14,6 +14,9 @@ class AiWidget extends Component
     /** Messages kept in the panel (the browser cannot alter them). */
     public const KEEP = 40;
 
+    /** Where the conversation waits between two page loads. */
+    public const STORE = 'ai-widget.conversation';
+
     public string $input = '';
     public bool $loading = false;
 
@@ -26,6 +29,25 @@ class AiWidget extends Component
     public function mount(): void
     {
         $this->mode = config('ai.widget.mode', 'operator');
+
+        // The panel is re-created at every page load: without this the conversation ends
+        // as soon as the user goes to look something up, and whatever it produced is lost.
+        if ($this->remembers()) {
+            $this->messages = array_values((array) session()->get(self::STORE, []));
+        }
+    }
+
+    /** Keeps the conversation where the next page load will find it again. */
+    public function dehydrate(): void
+    {
+        if ($this->remembers()) {
+            session()->put(self::STORE, $this->messages);
+        }
+    }
+
+    protected function remembers(): bool
+    {
+        return (bool) config('ai.widget.remember', true);
     }
 
     /**
@@ -126,7 +148,14 @@ class AiWidget extends Component
             return null;
         }
 
-        return $url ? $this->redirect($url, navigate: false) : null;
+        if (! $url) {
+            return null;
+        }
+
+        // La conversazione ha trovato casa: il pannello riparte pulito.
+        $this->clear();
+
+        return $this->redirect($url, navigate: false);
     }
 
     /** True when the application offered an action and there is an answer worth keeping. */
@@ -155,6 +184,7 @@ class AiWidget extends Component
     public function clear(): void
     {
         $this->messages = [];
+        session()->forget(self::STORE);
     }
 
     public function render()

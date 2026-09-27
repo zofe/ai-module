@@ -73,6 +73,10 @@ return [
         'examples'      => array_values(array_filter(array_map('trim',
             explode('|', (string) env('AI_WIDGET_EXAMPLES', ''))))),
 
+        // The conversation survives a page change, in the user's session. Turn it off where
+        // the session lives in a cookie (4 KB) or where a chat must not outlive the page.
+        'remember'      => (bool) env('AI_WIDGET_REMEMBER', true),
+
         // What a conversation of the panel can become. The name of an invokable class:
         // it receives the messages and returns the URL to send the user to, or null to stay.
         // A chat is thrown away when the panel closes; this is how an application offers to

@@ -352,6 +352,44 @@ class AiWidgetTest extends TestCase
             ->assertSee('could not be saved')
             ->assertSee('An answer.');
     }
+
+    public function test_the_conversation_survives_a_page_change()
+    {
+        $this->fakeProvider('Two hundred.');
+
+        Livewire::test(AiWidget::class)->set('input', 'how many?')->call('send');
+
+        // A new page means a new component: it finds the conversation again.
+        Livewire::test(AiWidget::class)
+            ->assertSee('how many?')
+            ->assertSee('Two hundred.');
+
+        // Clearing it means clearing it for good.
+        Livewire::test(AiWidget::class)->call('clear');
+        Livewire::test(AiWidget::class)->assertDontSee('Two hundred.');
+    }
+
+    public function test_a_panel_that_must_not_remember_does_not()
+    {
+        $this->fakeProvider('Two hundred.');
+        config(['ai.widget.remember' => false]);
+
+        Livewire::test(AiWidget::class)->set('input', 'how many?')->call('send')->assertSee('Two hundred.');
+
+        Livewire::test(AiWidget::class)->assertDontSee('Two hundred.');
+    }
+
+    public function test_a_saved_conversation_leaves_the_panel_empty()
+    {
+        $this->fakeProvider('Two hundred.');
+        config(['ai.widget.on_save' => AiWidgetTestSaver::class]);
+
+        Livewire::test(AiWidget::class)->set('input', 'how many?')->call('send')->call('save');
+
+        Livewire::test(AiWidget::class)
+            ->assertDontSee('Two hundred.')
+            ->assertSee('How can I help you today?');
+    }
 }
 
 /** What an application does with a conversation it wants to keep. */

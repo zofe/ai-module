@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.6.0] - 2026-09-27
+
+- **The conversation survives a page change** (`ai.widget.remember`, on; `AI_WIDGET_REMEMBER=false` to opt out).
+  The panel is re-created at every page load, so a chat ended the moment the user went to look something up —
+  and with `on_save` that also meant losing whatever it had produced. It now waits in the user's session; `clear`
+  ends it for good. Turn it off where the session lives in a cookie (4 KB).
+- A conversation that is saved leaves the panel empty: it found a home.
+
 ## [1.5.0] - 2026-09-27
 
 - **`ai.widget.on_save`**: what a conversation of the panel can become. The name of an invokable class that
