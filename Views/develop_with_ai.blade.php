@@ -92,8 +92,14 @@
                 @else
                     <p class="small text-muted">{{ __('The ledger is off: run the migrations (ai_usage) to keep the spend per month and per context.') }}</p>
                 @endif
+                @php $week = ['cost' => array_sum(array_column($runtime['days'], 'cost')), 'requests' => array_sum(array_column($runtime['days'], 'requests'))]; @endphp
                 <details class="mb-4">
-                    <summary class="small text-muted">{{ __('The last days, and the prices') }}</summary>
+                    {{-- The sum is readable with the details closed: the table inside is the breakdown --}}
+                    <summary class="small">
+                        <span class="text-muted">{{ __('Last :days days', ['days' => count($runtime['days'])]) }}:</span>
+                        <strong>{{ $money($week['cost']) }}</strong>
+                        <span class="text-muted">· {{ number_format($week['requests']) }} {{ __('requests') }} · {{ __('prices') }} {{ $runtime['prices'][0] }} / {{ $runtime['prices'][1] }} {{ __('$ per million tokens (input / output)') }}</span>
+                    </summary>
                     <table class="table table-sm mt-2 mb-1">
                         <thead><tr><th>{{ __('Day') }}</th><th class="text-end">{{ __('Requests') }}</th><th class="text-end">{{ __('Input tokens') }}</th><th class="text-end">{{ __('Output tokens') }}</th><th class="text-end">{{ __('Cost') }}</th></tr></thead>
                         <tbody>
@@ -102,7 +108,6 @@
                         @endforeach
                         </tbody>
                     </table>
-                    <small class="text-muted">{{ __('Prices') }}: {{ $runtime['prices'][0] }} / {{ $runtime['prices'][1] }} {{ __('$ per million tokens (input / output)') }}</small>
                 </details>
 
                 {{-- What the assistant may read --}}

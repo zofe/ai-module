@@ -1,5 +1,10 @@
 # Changelog
 
+## [1.8.1] - 2026-09-27
+
+- The sum of the last days is readable with the details closed: "Last 7 days: 0.12 $ · 41 requests · prices …".
+  The per-day table inside is the breakdown, not the only place the number lived.
+
 ## [1.8.0] - 2026-09-27
 
 - **The AI page has two sides.** "AI in this application", for the people who use it: what the AI *did* — the
