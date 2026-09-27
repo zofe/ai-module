@@ -130,6 +130,11 @@ return [
     */
     'budget' => [
         'daily'        => (float) env('AI_DAILY_BUDGET', 0),
+        // The ledger: one row in `ai_usage` per call to the provider (context, tokens, cost at
+        // the prices of the moment, user). The counters above answer "how much today"; the
+        // ledger answers "how much this month, since the start, and for what". Needs the
+        // module's migration; without the table nothing breaks, the counters keep working.
+        'ledger'       => (bool) env('AI_LEDGER', true),
         'store'        => env('AI_USAGE_STORE', null),
         'price_input'  => (float) env('AI_PRICE_INPUT', 0.30),
         'price_output' => (float) env('AI_PRICE_OUTPUT', 1.20),

@@ -87,6 +87,7 @@ class AiWidget extends Component
             $reply   = $service->chat(
                 messages: $this->context(),
                 withTools: $this->toolsAllowed(),
+                context: 'widget',
             );
 
             // What the answer cost travels with it: a conversation that is saved keeps its

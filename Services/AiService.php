@@ -17,6 +17,9 @@ class AiService
     public int $lastInput = 0;
     public int $lastOutput = 0;
 
+    /** What the current call is for, written on every row of the ledger it produces. */
+    protected ?string $context = null;
+
     public function __construct(
         protected AiUsage $usage,
         protected AiKnowledge $knowledge,
@@ -33,10 +36,12 @@ class AiService
      *
      * @param  array  $messages  [['role' => 'user'|'assistant', 'content' => '...']]
      * @param  bool   $withTools  Include registered AiTool definitions in the request
+     * @param  ?string  $context  What the call is for, one word for the ledger (classify, chat, widget...)
      */
-    public function chat(array $messages, bool $withTools = true): string
+    public function chat(array $messages, bool $withTools = true, ?string $context = null): string
     {
         $this->lastInput = $this->lastOutput = 0;
+        $this->context = $context;
 
         return match ($this->provider) {
             'openai'  => $this->chatOpenAi($messages, $withTools),
@@ -261,7 +266,7 @@ class AiService
 
         $this->lastInput  += $input;
         $this->lastOutput += $output;
-        $this->usage->record($input, $output);
+        $this->usage->record($input, $output, $this->context);
     }
 
     /**

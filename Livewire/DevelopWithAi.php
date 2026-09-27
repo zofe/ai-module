@@ -67,6 +67,11 @@ class DevelopWithAi extends Component
             'tools_withheld' => array_values(array_diff($registered, $offered)),
             'today' => $usage->today(),
             'days' => $usage->lastDays(),
+            // The ledger: the month, the whole life of the application and what the money went to.
+            'ledger' => $usage->ledgerOn(),
+            'month' => $usage->ledgerOn() ? $usage->month() : null,
+            'all_time' => $usage->ledgerOn() ? $usage->allTime() : null,
+            'contexts' => $usage->ledgerOn() ? $usage->byContext(now()->startOfMonth()) : [],
             'budget' => $usage->budget(),
             'prices' => [config('ai.budget.price_input'), config('ai.budget.price_output')],
         ];

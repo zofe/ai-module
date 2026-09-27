@@ -5,8 +5,10 @@ namespace Zofe\Ai\Tests;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Livewire\LivewireServiceProvider;
 use Orchestra\Testbench\TestCase as Orchestra;
+use Illuminate\Support\Facades\Schema;
 use Zofe\Ai\AiRegistry;
 use Zofe\Ai\AiServiceProvider;
+use Zofe\Ai\Services\AiUsage;
 use Zofe\Rapyd\RapydServiceProvider;
 
 class TestCase extends Orchestra
@@ -15,6 +17,12 @@ class TestCase extends Orchestra
     {
         parent::setUp();
         AiRegistry::reset();
+        AiUsage::reset();
+
+        // The ledger table, from the module's own migration and nothing else.
+        if (! Schema::hasTable(AiUsage::TABLE)) {
+            (require __DIR__ . '/../Database/Migrations/2026_09_27_000001_create_ai_usage_table.php')->up();
+        }
     }
 
     protected function getPackageProviders($app)

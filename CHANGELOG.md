@@ -1,5 +1,16 @@
 # Changelog
 
+## [1.7.0] - 2026-09-27
+
+- **The ledger**: one row in `ai_usage` per call to the provider — the context the caller declared, provider and
+  model, tokens, the cost at the prices of that moment, who asked. The daily counters in the cache stay the
+  perimeter of the budget; the ledger is the history: `AiUsage::month()`, `months()`, `allTime()`, `byContext()`,
+  and `lastDays()` reads it when it is on, so a `cache:clear` no longer blanks the page. Ships as a migration of the
+  module; on by default (`AI_LEDGER=false` to opt out); an application that has not migrated keeps its answers.
+- `AiService::chat()` takes a `context` (one word: classify, chat...); the widget writes `widget`.
+- "Develop with AI" shows the month, the whole life of the application and the split by context; `ai:usage` prints
+  months and contexts too.
+
 ## [1.6.0] - 2026-09-27
 
 - **The conversation survives a page change** (`ai.widget.remember`, on; `AI_WIDGET_REMEMBER=false` to opt out).

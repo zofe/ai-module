@@ -178,6 +178,36 @@
                 <dt class="col-sm-3">{{ __('Prices') }}</dt><dd class="col-sm-9">{{ $runtime['prices'][0] }} / {{ $runtime['prices'][1] }} {{ __('$ per million tokens (input / output)') }}</dd>
                 <dt class="col-sm-3">{{ __('Daily budget') }}</dt><dd class="col-sm-9">{{ $runtime['budget'] > 0 ? $money($runtime['budget']) : __('none (set AI_DAILY_BUDGET on a public site)') }}</dd>
             </dl>
+            @if($runtime['ledger'])
+                <div class="row g-3 mb-3">
+                    <div class="col-md-4">
+                        <div class="border rounded p-3 h-100">
+                            <div class="small text-muted">{{ __('This month') }}</div>
+                            <div class="fs-4 fw-semibold">{{ $money($runtime['month']['cost']) }}</div>
+                            <div class="small text-muted">{{ number_format($runtime['month']['requests']) }} {{ __('requests') }}</div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="border rounded p-3 h-100">
+                            <div class="small text-muted">{{ $runtime['all_time']['since'] ? __('Since :date', ['date' => $runtime['all_time']['since']]) : __('Since the start') }}</div>
+                            <div class="fs-4 fw-semibold">{{ $money($runtime['all_time']['cost']) }}</div>
+                            <div class="small text-muted">{{ number_format($runtime['all_time']['requests']) }} {{ __('requests') }}</div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="border rounded p-3 h-100">
+                            <div class="small text-muted">{{ __('This month, by context') }}</div>
+                            @forelse($runtime['contexts'] as $c)
+                                <div class="d-flex justify-content-between small"><span>{{ $c['context'] ?? '–' }}</span><span>{{ $money($c['cost']) }}</span></div>
+                            @empty
+                                <div class="small text-muted">–</div>
+                            @endforelse
+                        </div>
+                    </div>
+                </div>
+            @else
+                <p class="small text-muted">{{ __('The ledger is off: run the migrations (ai_usage) to keep the spend per month and per context.') }}</p>
+            @endif
             <table class="table table-sm mb-0">
                 <thead><tr><th>{{ __('Day') }}</th><th class="text-end">{{ __('Requests') }}</th><th class="text-end">{{ __('Input tokens') }}</th><th class="text-end">{{ __('Output tokens') }}</th><th class="text-end">{{ __('Cost') }}</th></tr></thead>
                 <tbody>

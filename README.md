@@ -156,8 +156,35 @@ named by `AI_USAGE_STORE` (default: the application cache, which `cache:clear` a
 another store, `file` for instance, to keep them across deploys.
 
 ```bash
-php artisan ai:usage            # requests, tokens and cost of the last 7 days
+php artisan ai:usage            # per day, and per month and context from the ledger
 ```
+
+### The ledger
+
+The counters answer "how much today". The ledger answers "how much this month, since the start, and for what": one
+row in `ai_usage` per call to the provider, with the **context** the caller declared, the tokens, the cost at the
+prices configured at that moment (a price change later does not rewrite history) and who asked. It ships as a
+migration of the module (`php artisan migrate`), it is on by default (`AI_LEDGER=false` to opt out), and an
+application that has not migrated loses nothing: the row is skipped with a warning, the counters keep counting.
+
+The context is one word chosen by whoever calls the model, so the spend can be read by purpose:
+
+```php
+$ai->chat($messages, withTools: false, context: 'classify');   // the widget writes "widget"
+```
+
+```php
+$usage = app(\Zofe\Ai\Services\AiUsage::class);
+$usage->month();                       // ['month' => '2026-09', 'requests' => 412, 'input' => ..., 'output' => ..., 'cost' => 1.83]
+$usage->month('classify');             // the same, for one context
+$usage->months(12);                    // the last twelve, current first
+$usage->allTime();                     // ['since' => '2026-09-22', ...]
+$usage->byContext(now()->startOfMonth());   // [['context' => 'classify', 'cost' => 1.41, ...], ...], most expensive first
+$usage->lastDays(7);                   // from the ledger when it is on: a cache:clear does not blank the page
+```
+
+"Develop with AI" shows the month, the whole life of the application and the split by context; `ai:usage` prints
+the same in the console.
 
 ## The "Develop with AI" page
 
