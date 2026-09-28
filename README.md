@@ -125,10 +125,13 @@ JSON, so a whole cost arrives as an int: cast it. Nothing here calls the provide
 
 ## What the bot knows
 
-`AI_KNOWLEDGE` points to a markdown file (path relative to the app root, or absolute) or to an URL (fetched once an
-hour). Its content is appended to the system prompt, trimmed to `AI_KNOWLEDGE_MAX` characters (16000). Keep it a
-plain, current description of the product: versions, features, commands, links, prices, what to say when something is
-not covered.
+`AI_KNOWLEDGE` points to a markdown file (path relative to the app root, or absolute), to an URL (fetched once an
+hour), to a **directory** — every `*.md` in it, in name order (`10-product.md`, `20-cases.md`…), files starting with
+`_` or `.` left out, so a `_README.md` can explain the conventions to whoever edits them — or, in `config/ai.php`, to
+an array of those. The pieces are joined with a rule and appended to the system prompt, trimmed to `AI_KNOWLEDGE_MAX`
+characters (16000) with a warning in the log when that happens. Point it at a directory and a new document is one
+more file, nothing else. Keep them plain, current descriptions: versions, features, commands, what to say when
+something is not covered. "AI overview" lists the files the assistant reads.
 
 ## The perimeter of a public bot
 

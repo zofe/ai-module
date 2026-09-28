@@ -126,8 +126,27 @@
                     <p class="small text-muted mb-1">{{ __('Registered but out of the perimeter (:setting): :tools', ['setting' => 'ai.widget.tools', 'tools' => implode(', ', $runtime['tools_withheld'])]) }}</p>
                 @endif
                 <p class="small text-muted mb-0">
-                    {{ __('Widget') }}: {{ $runtime['widget'] ? __('enabled') : __('disabled') }}, {{ __('mode') }} {{ $runtime['mode'] }}@if($runtime['knowledge']), {{ __('knowledge') }} {{ $runtime['knowledge'] }}@endif
+                    {{ __('Widget') }}: {{ $runtime['widget'] ? __('enabled') : __('disabled') }}, {{ __('mode') }} {{ $runtime['mode'] }}
                 </p>
+            @endif
+        </div>
+
+        {{-- What the assistant knows: the documents, readable here --}}
+        <div x-show="tab === 'app'">
+            @if($runtime['configured'] && $runtime['knowledge_docs'])
+                @php $knowledgeLength = array_sum(array_map(fn ($d) => mb_strlen($d['text']), $runtime['knowledge_docs'])); @endphp
+                <h5 class="fw-semibold mt-4 mb-3 pb-2 border-bottom">{{ __('What it knows') }}</h5>
+                <p class="small text-muted">
+                    {{ __('These documents are added to every question. They are files of the application: to correct what the assistant knows, edit them.') }}
+                    {{ __(':chars characters in :docs documents, limit :max.', ['chars' => number_format($knowledgeLength), 'docs' => count($runtime['knowledge_docs']), 'max' => number_format($runtime['knowledge_max'])]) }}
+                    @if($knowledgeLength > $runtime['knowledge_max'])<span class="text-danger">{{ __('Over the limit: the end is cut off.') }}</span>@endif
+                </p>
+                @foreach($runtime['knowledge_docs'] as $doc)
+                    <details class="border rounded p-3 mb-2">
+                        <summary><strong>{{ $doc['title'] }}</strong> <code class="small text-muted ms-2">{{ $doc['file'] }}</code> <span class="small text-muted">· {{ number_format(mb_strlen($doc['text'])) }}</span></summary>
+                        <div class="rpd-markdown mt-3 small" style="max-height: 70vh; overflow: auto">{!! $doc['html'] !!}</div>
+                    </details>
+                @endforeach
             @endif
         </div>
 

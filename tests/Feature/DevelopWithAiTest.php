@@ -83,6 +83,25 @@ class DevelopWithAiTest extends TestCase
             ->assertDontSee('shop-module');
     }
 
+    public function test_the_documents_the_assistant_knows_are_readable_on_the_page()
+    {
+        $dir = sys_get_temp_dir() . '/ai-kb-' . uniqid();
+        mkdir($dir);
+        file_put_contents($dir . '/10-box.md', "# The box\n\nIt has **two** WAN lines.\n\n<script>alert(1)</script>");
+        config(['ai.widget.knowledge' => $dir, 'ai.widget.knowledge_max' => 16000]);
+        $this->actingAs($this->userWith(true));
+
+        Livewire::test(DevelopWithAi::class)
+            ->assertSee('What it knows')
+            ->assertSee('The box')
+            ->assertSee('10-box.md')
+            ->assertSee('<strong>two</strong>', false)   // rendered, not shown as markdown
+            ->assertDontSee('<script>', false);          // html in a document is stripped
+
+        unlink($dir . '/10-box.md');
+        rmdir($dir);
+    }
+
     public function test_the_side_for_the_developers_is_there_unless_the_application_turned_it_off()
     {
         $this->actingAs($this->userWith(true));

@@ -101,8 +101,10 @@ return [
         'tools'         => array_values(array_filter(array_map('trim',
             explode(',', (string) env('AI_WIDGET_TOOLS', ''))))),
 
-        // Knowledge base appended to the system prompt: a markdown file (path
-        // relative to the app root or absolute) or an http(s) URL (cached 1h).
+        // Knowledge appended to the system prompt: a markdown file (path relative to
+        // the app root or absolute), an http(s) URL (cached 1h), a directory (every *.md
+        // in it, name order, files starting with "_" or "." left out) or an array of
+        // those. Set a directory and a new document is one more file, nothing else.
         'knowledge'     => env('AI_KNOWLEDGE', null),
         'knowledge_max' => (int) env('AI_KNOWLEDGE_MAX', 16000),   // characters
 

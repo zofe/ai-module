@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.9.0] - 2026-09-28
+
+- **`ai.widget.knowledge` takes a directory** (every `*.md` in it, name order, `_`/`.` files left out) **or an
+  array** of files, directories and URLs: a new document is one more file. `AiKnowledge::sources()` lists them and
+  Trimming to `knowledge_max` is now said in the log.
+- **"What it knows"** on the AI page: the documents the assistant reads, rendered and readable there, with their
+  size against the limit — the people who use the application see what it knows, and what to correct.
+
 ## [1.8.4] - 2026-09-28
 
 - The menu entry and the breadcrumb of the page are "AI overview" (it: "Riepilogo AI"): "AI" alone said what it was about, not what the page is.

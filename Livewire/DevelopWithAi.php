@@ -5,6 +5,7 @@ namespace Zofe\Ai\Livewire;
 use App\Modules\Auth\Traits\Authorize;
 use Livewire\Component;
 use Zofe\Ai\AiRegistry;
+use Zofe\Ai\Services\AiKnowledge;
 use Zofe\Ai\Services\AiService;
 use Zofe\Ai\Services\AiUsage;
 use Zofe\Rapyd\Ai\AiDevelopment;
@@ -91,6 +92,10 @@ class DevelopWithAi extends Component
             'widget' => (bool) config('ai.widget.enabled'),
             'mode' => config('ai.widget.mode', 'operator'),
             'knowledge' => config('ai.widget.knowledge'),
+            // The documents the assistant reads, in order, rendered so that the people who
+            // use the application can read what it knows — and see what to correct.
+            'knowledge_docs' => array_map(fn ($doc) => $doc + ['html' => $this->markdown($doc['text'])], app(AiKnowledge::class)->documents()),
+            'knowledge_max' => (int) config('ai.widget.knowledge_max', 16000),
             // What the assistant may read, with the words the modules gave each tool.
             'tools' => array_map(fn ($tool) => ['name' => $tool->name, 'description' => $tool->description], $offered),
             // Registered by a module but kept out by `ai.widget.tools`: the perimeter, visible.
@@ -105,6 +110,16 @@ class DevelopWithAi extends Component
             'budget' => $usage->budget(),
             'prices' => [config('ai.budget.price_input'), config('ai.budget.price_output')],
         ];
+    }
+
+    /** Markdown to HTML when league/commonmark is there (Laravel ships it), the text otherwise. */
+    protected function markdown(string $text): string
+    {
+        if (class_exists(\League\CommonMark\GithubFlavoredMarkdownConverter::class)) {
+            return (string) \Illuminate\Support\Str::markdown($text, ['html_input' => 'strip', 'allow_unsafe_links' => false]);
+        }
+
+        return '<pre class="small mb-0" style="white-space: pre-wrap">' . e($text) . '</pre>';
     }
 
     /** The commands that unlock a capability, listed once. */
