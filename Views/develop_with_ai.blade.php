@@ -35,7 +35,7 @@
                 </p>
 
                 {{-- What the AI did: the activities the modules declare --}}
-                <h6>{{ __('What the AI did') }}</h6>
+                <h5 class="fw-semibold mt-4 mb-3 pb-2 border-bottom">{{ __('What the AI did') }}</h5>
                 @if($activities)
                     <div class="row g-3 mb-4">
                         @foreach($activities as $a)
@@ -57,7 +57,7 @@
                 @endif
 
                 {{-- What it costs: the ledger --}}
-                <h6>{{ __('What it costs') }}</h6>
+                <h5 class="fw-semibold mt-4 mb-3 pb-2 border-bottom">{{ __('What it costs') }}</h5>
                 @if($runtime['ledger'])
                     <div class="row g-3 mb-3">
                         <div class="col-md-4">
@@ -112,7 +112,7 @@
                 </details>
 
                 {{-- What the assistant may read --}}
-                <h6>{{ __('What the assistant may read') }}</h6>
+                <h5 class="fw-semibold mt-4 mb-3 pb-2 border-bottom">{{ __('What the assistant may read') }}</h5>
                 @if($runtime['tools'])
                     <ul class="list-unstyled mb-1">
                         @foreach($runtime['tools'] as $tool)

@@ -1,5 +1,9 @@
 # Changelog
 
+## [1.8.3] - 2026-09-28
+
+- The three headings of "AI in this application" are headings: larger, with a rule under them, room above.
+
 ## [1.8.2] - 2026-09-28
 
 - The table of the last days shows only the days with calls: a row of zeros said nothing.
