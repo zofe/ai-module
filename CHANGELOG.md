@@ -1,5 +1,9 @@
 # Changelog
 
+## [1.8.2] - 2026-09-28
+
+- The table of the last days shows only the days with calls: a row of zeros said nothing.
+
 ## [1.8.1] - 2026-09-27
 
 - The sum of the last days is readable with the details closed: "Last 7 days: 0.12 $ · 41 requests · prices …".

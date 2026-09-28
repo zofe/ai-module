@@ -103,7 +103,8 @@
                     <table class="table table-sm mt-2 mb-1">
                         <thead><tr><th>{{ __('Day') }}</th><th class="text-end">{{ __('Requests') }}</th><th class="text-end">{{ __('Input tokens') }}</th><th class="text-end">{{ __('Output tokens') }}</th><th class="text-end">{{ __('Cost') }}</th></tr></thead>
                         <tbody>
-                        @foreach($runtime['days'] as $day)
+                        {{-- A day without calls is not a row: the table says when the AI worked --}}
+                        @foreach(array_filter($runtime['days'], fn ($d) => $d['requests'] > 0) as $day)
                             <tr><td>{{ $day['day'] }}</td><td class="text-end">{{ number_format($day['requests']) }}</td><td class="text-end">{{ number_format($day['input']) }}</td><td class="text-end">{{ number_format($day['output']) }}</td><td class="text-end">{{ $money($day['cost']) }}</td></tr>
                         @endforeach
                         </tbody>
