@@ -1,3 +1,3 @@
 @if(Auth::user() && Auth::user()->hasRoleOrPermission('admin|view everything|develop with ai'))
-    <x-rpd::nav-item icon="robot" label="AI" route="ai.develop" active="/ai/develop" />
+    <x-rpd::nav-item icon="robot" label="AI overview" route="ai.develop" active="/ai/develop" />
 @endif

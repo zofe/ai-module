@@ -1,5 +1,9 @@
 # Changelog
 
+## [1.8.4] - 2026-09-28
+
+- The menu entry and the breadcrumb of the page are "AI overview" (it: "Riepilogo AI"): "AI" alone said what it was about, not what the page is.
+
 ## [1.8.3] - 2026-09-28
 
 - The three headings of "AI in this application" are headings: larger, with a rule under them, room above.
