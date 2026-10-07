@@ -61,6 +61,10 @@ class AiUsageTest extends TestCase
         config(['ai.budget.price_input' => 1.0, 'ai.budget.price_output' => 1.0]);
         $usage = app(AiUsage::class);
 
+        // A fixed "today", so that what counts as "this month" and "the last days" never
+        // depends on the day the suite runs.
+        $this->travelTo('2026-09-28 12:00:00');
+
         // Two calls this month, one two months ago: 1M tokens each side, 2 $ each at these prices.
         $this->travelTo(now()->startOfMonth()->addDays(3));
         $usage->record(1_000_000, 1_000_000, 'classify');
@@ -68,7 +72,7 @@ class AiUsageTest extends TestCase
         $this->travelTo(now()->subMonths(2));
         $usage->record(1_000_000, 1_000_000, 'classify');
         $firstDay = now()->format('Y-m-d');
-        $this->travelBack();
+        $this->travelTo('2026-09-28 12:00:00');
 
         $this->assertEqualsWithDelta(4.0, $usage->month()['cost'], 0.000001);
         $this->assertSame(2, $usage->month()['requests']);

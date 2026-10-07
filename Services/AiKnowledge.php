@@ -9,21 +9,25 @@ use Illuminate\Support\Facades\Log;
 /**
  * The markdown the assistant knows the product from, set in `ai.widget.knowledge`:
  * a file (path relative to the app root, or absolute), an http(s) URL, a **directory**
- * (every `*.md` in it, in name order, files starting with `_` or `.` left out), or an
- * array of any of those. The pieces are joined with a rule between them and the whole is
- * trimmed to `ai.widget.knowledge_max` characters — with a warning in the log when that
- * happens, because a silently cut document is worse than none.
+ * (every `*.md` in it, in name order, files starting with `_` or `.` left out), an array
+ * of any of those — or the name of an **invokable class** that returns the documents
+ * itself (a wiki, a CMS, whatever the application keeps its knowledge in):
+ *
+ *     __invoke(): list<array{title: string, text: string, file?: string, updated_at?: string, author?: string}>
+ *
+ * The pieces are joined with a rule between them and the whole is trimmed to
+ * `ai.widget.knowledge_max` characters — with a warning in the log when that happens,
+ * because a silently cut document is worse than none.
  */
 class AiKnowledge
 {
     public function text(): string
     {
-        $sources = $this->sources();
-        if ($sources === []) {
+        $pieces = array_filter(array_map(fn ($doc) => trim($doc['text']), $this->documents()));
+        if ($pieces === []) {
             return '';
         }
 
-        $pieces = array_filter(array_map(fn ($source) => trim($this->read($source)), $sources));
         $text = implode("\n\n---\n\n", $pieces);
 
         $max = (int) config('ai.widget.knowledge_max', 16000);
@@ -35,14 +39,28 @@ class AiKnowledge
         return trim($text);
     }
 
+    /** The class the application named in `ai.widget.knowledge`, when it named one. */
+    protected function provider(): ?object
+    {
+        $configured = config('ai.widget.knowledge');
+
+        return is_string($configured) && $configured !== '' && class_exists($configured) && method_exists($configured, '__invoke')
+            ? app($configured)
+            : null;
+    }
+
     /**
      * The files that make up the knowledge, in the order they are read: what the "AI
-     * overview" page lists.
+     * overview" page lists. Empty when a provider class supplies the documents instead.
      *
      * @return list<string>
      */
     public function sources(): array
     {
+        if ($this->provider()) {
+            return [];
+        }
+
         $configured = config('ai.widget.knowledge', '');
         $configured = is_array($configured) ? $configured : [(string) $configured];
 
@@ -81,6 +99,18 @@ class AiKnowledge
      */
     public function documents(): array
     {
+        if ($provider = $this->provider()) {
+            return array_values(array_filter(array_map(function ($doc) {
+                $text = trim((string) ($doc['text'] ?? ''));
+
+                return $text === '' ? null : [
+                    'file' => (string) ($doc['file'] ?? $doc['title'] ?? ''),
+                    'title' => (string) ($doc['title'] ?? $doc['file'] ?? ''),
+                    'text' => $text,
+                ] + array_intersect_key($doc, array_flip(['updated_at', 'author', 'url']));
+            }, (array) $provider())));
+        }
+
         $root = rtrim(base_path(), '/') . '/';
 
         return array_values(array_filter(array_map(function ($source) use ($root) {

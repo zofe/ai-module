@@ -143,7 +143,7 @@
                 </p>
                 @foreach($runtime['knowledge_docs'] as $doc)
                     <details class="border rounded p-3 mb-2">
-                        <summary><strong>{{ $doc['title'] }}</strong> <code class="small text-muted ms-2">{{ $doc['file'] }}</code> <span class="small text-muted">· {{ number_format(mb_strlen($doc['text'])) }}</span></summary>
+                        <summary><strong>{{ $doc['title'] }}</strong> @if(($doc['file'] ?? '') !== $doc['title'])<code class="small text-muted ms-2">{{ $doc['file'] }}</code>@endif <span class="small text-muted">· {{ number_format(mb_strlen($doc['text'])) }}@if(! empty($doc['updated_at'])) · {{ $doc['updated_at'] }}@endif@if(! empty($doc['author'])) · {{ $doc['author'] }}@endif</span></summary>
                         <div class="rpd-markdown mt-3 small" style="max-height: 70vh; overflow: auto">{!! $doc['html'] !!}</div>
                     </details>
                 @endforeach

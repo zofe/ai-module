@@ -103,8 +103,10 @@ return [
 
         // Knowledge appended to the system prompt: a markdown file (path relative to
         // the app root or absolute), an http(s) URL (cached 1h), a directory (every *.md
-        // in it, name order, files starting with "_" or "." left out) or an array of
-        // those. Set a directory and a new document is one more file, nothing else.
+        // in it, name order, files starting with "_" or "." left out), an array of
+        // those, or the name of an invokable class that returns the documents itself
+        // (a wiki, a CMS: see AiKnowledge). Set a directory and a new document is one
+        // more file, nothing else.
         'knowledge'     => env('AI_KNOWLEDGE', null),
         'knowledge_max' => (int) env('AI_KNOWLEDGE_MAX', 16000),   // characters
 

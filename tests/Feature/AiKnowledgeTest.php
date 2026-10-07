@@ -69,4 +69,29 @@ class AiKnowledgeTest extends TestCase
 
         $this->assertSame(20, mb_strlen(app(AiKnowledge::class)->text()));
     }
+
+    public function test_an_invokable_class_can_supply_the_documents_from_anywhere()
+    {
+        config(['ai.widget.knowledge' => AiKnowledgeTestWiki::class]);
+        $knowledge = app(AiKnowledge::class);
+
+        $docs = $knowledge->documents();
+        $this->assertSame(['Product', 'Cases'], array_column($docs, 'title'));
+        $this->assertSame('wiki', $docs[0]['author']);
+        $this->assertSame("# Product\n\nFrom the wiki.\n\n---\n\n# Cases\n\nAlso from the wiki.", $knowledge->text());
+        $this->assertSame([], $knowledge->sources(), 'no files: the class is the source');
+    }
+}
+
+/** An application keeping its knowledge in a wiki. */
+class AiKnowledgeTestWiki
+{
+    public function __invoke(): array
+    {
+        return [
+            ['title' => 'Product', 'text' => "# Product\n\nFrom the wiki.", 'author' => 'wiki', 'updated_at' => '2026-10-06 20:59'],
+            ['title' => 'Cases', 'text' => "# Cases\n\nAlso from the wiki."],
+            ['title' => 'Empty', 'text' => '   '],
+        ];
+    }
 }

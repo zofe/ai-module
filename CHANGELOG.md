@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.10.0] - 2026-10-07
+
+- **`ai.widget.knowledge` takes the name of an invokable class** that returns the documents itself (`title`, `text`,
+  optional `updated_at`, `author`, `url`): a wiki, a CMS, wherever the application keeps what the assistant must
+  know. "What it knows" shows them with when and by whom they were last changed. Files, directories and URLs
+  keep working as before.
+
 ## [1.9.0] - 2026-09-28
 
 - **`ai.widget.knowledge` takes a directory** (every `*.md` in it, name order, `_`/`.` files left out) **or an
