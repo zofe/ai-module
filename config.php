@@ -157,6 +157,9 @@ return [
         // The providers whose calls are filtered: a local Ollama usually needs it not.
         'providers' => ['anthropic', 'openai'],
         'terms'     => env('AI_REDACT_TERMS', null),
+        // What those names are, in the words of the application, for the AI overview page
+        // ("customers and companies copied from the CRM"); null = a generic description.
+        'terms_description' => env('AI_REDACT_TERMS_DESCRIPTION', null),
         'min_term_length' => 3,
         'patterns'  => null,
         'keep'      => array_values(array_filter(array_map('trim',

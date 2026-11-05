@@ -121,15 +121,19 @@
     "without Authorize": "senza Authorize",
     "Workflows": "Workflow",
     "Your agent": "Il tuo agente",
-    ":count words of the application are never masked.": ":count parole dell'applicazione non vengono mai coperte.",
     "Before a text leaves for the provider, the personal values in it become placeholders such as [PERSON_1] or [IP_ADDRESS_2]; the answer gets the real values back. The provider never sees them.": "Prima che un testo parta verso il servizio AI, i dati personali che contiene diventano segnaposto come [PERSON_1] o [IP_ADDRESS_2]; la risposta riceve di nuovo i valori veri. Il servizio AI non li vede mai.",
     "If Presidio does not answer, nothing is sent.": "Se Presidio non risponde, non parte niente.",
     "If Presidio does not answer, the text leaves filtered by the other sources only.": "Se Presidio non risponde, il testo parte filtrato solo dalle altre fonti.",
     "It reads the questions and the tool results, not the instructions and the documents of the application.": "Legge le domande e i risultati degli strumenti, non le istruzioni e i documenti dell'applicazione.",
-    "Microsoft Presidio on :host, for the free text: :entities.": "Microsoft Presidio su :host, per il testo libero: :entities.",
-    "Names the application knows: :count, exact.": "Nomi che l'applicazione conosce: :count, esatti.",
     "No filter: the texts leave for the provider as they are (AI_REDACT).": "Nessun filtro: i testi partono verso il servizio AI così come sono (AI_REDACT).",
     "Personal data": "Dati personali",
     "Values with a shape: :types.": "Valori con una forma riconoscibile: :types.",
-    "every kind of personal data": "ogni tipo di dato personale"
+    "every kind of personal data": "ogni tipo di dato personale",
+    "Sensitive data protected with Microsoft Presidio": "Dati sensibili protetti con Microsoft Presidio",
+    "the open source analyzer by Microsoft, running on :host.": "l'analizzatore open source di Microsoft, che gira su :host.",
+    "Presidio finds in the free text: :entities.": "Presidio cerca nel testo libero: :entities.",
+    "The names the application already knows (:what): :count, masked exactly as they are written, wherever they appear.": "I nomi che l'applicazione conosce già (:what): :count, oscurati esattamente come sono scritti, ovunque compaiano.",
+    "customers, companies, devices": "clienti, aziende, dispositivi",
+    "Never masked, because they are words of the trade or public names that the assistant needs:": "Non vengono mai oscurate, perché sono parole del mestiere o nomi pubblici che servono all'assistente:",
+    "and :count more": "e altre :count"
 }

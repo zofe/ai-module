@@ -107,11 +107,14 @@ class DevelopWithAiTest extends TestCase
         $this->actingAs($this->userWith(true));
         Livewire::test(DevelopWithAi::class)->assertSee('No filter: the texts leave for the provider as they are');
 
-        config(['ai.redact.enabled' => true, 'ai.redact.presidio.url' => 'https://presidio.example.org', 'ai.redact.presidio.entities' => ['PERSON']]);
+        config(['ai.redact.keep' => ['TIM', 'glorytun'], 'ai.redact.enabled' => true, 'ai.redact.presidio.url' => 'https://presidio.example.org', 'ai.redact.presidio.entities' => ['PERSON']]);
         Livewire::test(DevelopWithAi::class)
             ->assertSee('Personal data')
-            ->assertSee('Microsoft Presidio on presidio.example.org, for the free text: person.')
-            ->assertSee('If Presidio does not answer, nothing is sent.');
+            ->assertSee('Sensitive data protected with Microsoft Presidio')
+            ->assertSee('running on presidio.example.org')
+            ->assertSee('Presidio finds in the free text: person.')
+            ->assertSee('If Presidio does not answer, nothing is sent.')
+            ->assertSee('TIM, glorytun');
     }
 
     public function test_the_side_for_the_developers_is_there_unless_the_application_turned_it_off()

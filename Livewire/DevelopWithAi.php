@@ -133,11 +133,12 @@ class DevelopWithAi extends Component
 
         return [
             'terms' => $terms,
+            'terms_description' => config('ai.redact.terms_description'),
             'patterns' => array_keys((array) (config('ai.redact.patterns') ?? AiRedactor::DEFAULT_PATTERNS)),
             'presidio' => $presidio ? parse_url($presidio, PHP_URL_HOST) : null,
             'entities' => config('ai.redact.presidio.entities'),
             'block' => config('ai.redact.on_error', 'block') === 'block',
-            'keep' => count((array) config('ai.redact.keep', [])),
+            'keep' => array_values((array) config('ai.redact.keep', [])),
         ];
     }
 

@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.13.0] - 2026-11-05
+
+- **"Personal data" in AI overview says first that the sensitive data are protected with Microsoft Presidio**, and
+  where it runs, before the details.
+- **`ai.redact.terms_description`** (`AI_REDACT_TERMS_DESCRIPTION`): what the names the application knows are, in its
+  own words ("customers and companies copied from the CRM"), so that "35,363 names" means something to who reads the
+  page. The count follows the thousands separator of the page language.
+- The words never masked (`ai.redact.keep`) are listed, with why, instead of counted.
+
 ## [1.12.1] - 2026-11-05
 
 - **IPv6 addresses are masked also when abbreviated** (`2a01:4f8::1`, `fe80::1`): the built-in pattern wanted three

@@ -132,23 +132,33 @@
                 {{-- How the personal data is kept from the provider --}}
                 <h5 class="fw-semibold mt-4 mb-3 pb-2 border-bottom">{{ __('Personal data') }}</h5>
                 @if($r = $runtime['redact'])
+                    @php $n = fn ($v) => number_format($v, 0, ',', in_array(app()->getLocale(), ['it', 'de', 'es', 'pt_BR'], true) ? '.' : ','); @endphp
+                    @if($r['presidio'])
+                        <div class="alert alert-success small py-2 mb-2">
+                            <strong>{{ __('Sensitive data protected with Microsoft Presidio') }}</strong>,
+                            {{ __('the open source analyzer by Microsoft, running on :host.', ['host' => $r['presidio']]) }}
+                        </div>
+                    @endif
                     <p class="small mb-2">
                         {{ __('Before a text leaves for the provider, the personal values in it become placeholders such as [PERSON_1] or [IP_ADDRESS_2]; the answer gets the real values back. The provider never sees them.') }}
                     </p>
                     <ul class="small mb-1">
-                        @if($r['terms'] !== null)
-                            <li>{{ __('Names the application knows: :count, exact.', ['count' => number_format($r['terms'])]) }}</li>
-                        @endif
-                        <li>{{ __('Values with a shape: :types.', ['types' => strtolower(str_replace('_', ' ', implode(', ', $r['patterns'])))]) }}</li>
                         @if($r['presidio'])
                             <li>
-                                {{ __('Microsoft Presidio on :host, for the free text: :entities.', ['host' => $r['presidio'], 'entities' => $r['entities'] ? strtolower(str_replace('_', ' ', implode(', ', $r['entities']))) : __('every kind of personal data')]) }}
+                                {{ __('Presidio finds in the free text: :entities.', ['entities' => $r['entities'] ? strtolower(str_replace('_', ' ', implode(', ', $r['entities']))) : __('every kind of personal data')]) }}
                                 {{ __('It reads the questions and the tool results, not the instructions and the documents of the application.') }}
                                 {{ $r['block'] ? __('If Presidio does not answer, nothing is sent.') : __('If Presidio does not answer, the text leaves filtered by the other sources only.') }}
                             </li>
                         @endif
+                        @if($r['terms'] !== null)
+                            <li>{{ __('The names the application already knows (:what): :count, masked exactly as they are written, wherever they appear.', ['what' => $r['terms_description'] ?: __('customers, companies, devices'), 'count' => $n($r['terms'])]) }}</li>
+                        @endif
+                        <li>{{ __('Values with a shape: :types.', ['types' => strtolower(str_replace('_', ' ', implode(', ', $r['patterns'])))]) }}</li>
                         @if($r['keep'])
-                            <li>{{ __(':count words of the application are never masked.', ['count' => $r['keep']]) }}</li>
+                            <li>
+                                {{ __('Never masked, because they are words of the trade or public names that the assistant needs:') }}
+                                {{ implode(', ', array_slice($r['keep'], 0, 30)) }}@if(count($r['keep']) > 30) {{ __('and :count more', ['count' => count($r['keep']) - 30]) }}@endif.
+                            </li>
                         @endif
                     </ul>
                 @else
