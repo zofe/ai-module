@@ -66,7 +66,7 @@ class AiService
     {
         $prompt = $this->systemPrompt();
 
-        return $this->redactor ? $this->redactor->mask($prompt)."\n\n".AiRedactor::instructions() : $prompt;
+        return $this->redactor ? $this->redactor->mask($prompt, presidio: false)."\n\n".AiRedactor::instructions() : $prompt;
     }
 
     /**

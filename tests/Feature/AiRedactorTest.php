@@ -78,6 +78,23 @@ class AiRedactorTest extends TestCase
         Http::assertSent(fn (Request $r) => $r['language'] === 'it' && $r['text'] === $text);
     }
 
+    public function test_presidio_does_not_read_the_system_prompt()
+    {
+        config(['ai.redact.presidio.url' => 'https://presidio.test', 'ai.widget.system_prompt' => 'Il Canale del Box. Scrivi a info@esempio.it']);
+        Http::fake([
+            'presidio.test/analyze' => Http::response([]),
+            'api.test/*' => Http::response(['choices' => [['message' => ['content' => 'ok']]]]),
+        ]);
+
+        app(AiService::class)->chat([['role' => 'user', 'content' => 'Mario Rossi']], false);
+
+        // Presidio sees the message only, once; the patterns still mask the system prompt.
+        Http::assertSentCount(2);
+        Http::assertSent(fn (Request $r) => str_contains($r->url(), 'presidio.test') && $r['text'] === 'Mario Rossi');
+        Http::assertSent(fn (Request $r) => str_contains($r->url(), 'api.test')
+            && str_contains(json_encode($r->data()), 'Il Canale del Box') && ! str_contains(json_encode($r->data()), 'info@esempio.it'));
+    }
+
     public function test_when_presidio_does_not_answer_nothing_leaves()
     {
         config(['ai.redact.presidio.url' => 'https://presidio.test']);

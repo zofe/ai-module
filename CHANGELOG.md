@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.11.1] - 2026-11-05
+
+- **Presidio no longer reads the system prompt and the knowledge**, only the messages and the tool results: on a
+  manual of 20,000 characters it took dozens of ordinary words ("Canale", "Stato", "Operatori", product names) for
+  places, companies and people, and the model got a knowledge full of placeholders. The text the application wrote
+  still goes through the names it knows and the patterns. `AiRedactor::mask()` takes `presidio: false` for that.
+
 ## [1.11.0] - 2026-11-05
 
 - **Personal data filter** (`ai.redact`, `AI_REDACT=true`): before a text leaves for the provider the personal

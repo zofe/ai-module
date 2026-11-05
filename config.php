@@ -137,7 +137,8 @@ return [
     | "[IP_ADDRESS_2]"); the tool arguments and the answer get the real values
     | back, so the provider never sees them and the user never sees the
     | placeholders. Applied to the system prompt (knowledge included), the
-    | messages and the tool results. Three sources, added together:
+    | messages and the tool results; Presidio only to the messages and the tool
+    | results, never to the text the application wrote. Three sources, added together:
     |
     | - `terms`: the name of an invokable class returning the names the
     |   application knows, as a list or as [name => TYPE] (companies, customers,

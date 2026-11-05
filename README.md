@@ -253,4 +253,4 @@ AI_REDACT_ON_ERROR=block                         # Presidio down: block (default
 `AI_REDACT_TERMS` names a class returning a list of names, or `[name => TYPE]`: exact and case-insensitive, the
 longest first, so the companies and customers in the database are always caught. The built-in patterns cover
 e-mail, IPv4/IPv6 and MAC addresses, IBANs and Italian phone numbers (`ai.redact.patterns` to change them).
-Presidio is for the free text: notes, tickets, what users type.
+Presidio is for the free text: notes, tickets, what users type. It reads the messages and the tool results, never the system prompt and the knowledge: the application wrote those, and Presidio takes the words of a manual ("Canale", "Stato", the product names) for places, companies and people.

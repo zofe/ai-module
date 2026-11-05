@@ -57,18 +57,22 @@ class AiRedactor
             && in_array($provider, (array) config('ai.redact.providers', ['anthropic', 'openai']), true);
     }
 
-    /** The text with every personal value replaced by its placeholder. */
-    public function mask(?string $text): ?string
+    /**
+     * The text with every personal value replaced by its placeholder. `$presidio` false for the
+     * text the application wrote itself (the system prompt, the knowledge): there the names it
+     * knows and the patterns are enough, and Presidio would take its words for names and places.
+     */
+    public function mask(?string $text, bool $presidio = true): ?string
     {
         if ($text === null || trim($text) === '') {
             return $text;
         }
-        $key = md5($text);
+        $key = md5($text).($presidio ? ':p' : '');
         if (isset($this->cache[$key])) {
             return $this->cache[$key];
         }
 
-        $spans = $this->resolve($text, [...$this->termSpans($text), ...$this->patternSpans($text), ...$this->presidioSpans($text)]);
+        $spans = $this->resolve($text, [...$this->termSpans($text), ...$this->patternSpans($text), ...($presidio ? $this->presidioSpans($text) : [])]);
         usort($spans, fn ($a, $b) => $b['start'] <=> $a['start']);
         $masked = $text;
         foreach ($spans as $s) {
