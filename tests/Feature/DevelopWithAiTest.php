@@ -102,6 +102,13 @@ class DevelopWithAiTest extends TestCase
         rmdir($dir);
     }
 
+    public function test_what_the_ai_did_is_hidden_when_no_module_declares_it()
+    {
+        $this->actingAs($this->userWith(true));
+
+        Livewire::test(DevelopWithAi::class)->assertDontSeeHtml('>What the AI did</h5>')->assertDontSee('AiActivityProvider');
+    }
+
     public function test_the_page_says_how_the_personal_data_is_protected()
     {
         $this->actingAs($this->userWith(true));

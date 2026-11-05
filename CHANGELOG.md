@@ -1,5 +1,10 @@
 # Changelog
 
+## [1.13.1] - 2026-11-05
+
+- **"What the AI did" is hidden when no module declares an activity**: the hint for the developers ("implement
+  AiActivityProvider") read as "the AI did nothing here" to the people who use the application.
+
 ## [1.13.0] - 2026-11-05
 
 - **"Personal data" in AI overview says first that the sensitive data are protected with Microsoft Presidio**, and

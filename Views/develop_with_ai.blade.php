@@ -34,9 +34,10 @@
                     {{ __('Model :model via :provider.', ['model' => $runtime['model'], 'provider' => $runtime['provider'] . ($runtime['base_url'] ? ' (' . parse_url($runtime['base_url'], PHP_URL_HOST) . ')' : '')]) }}
                 </p>
 
-                {{-- What the AI did: the activities the modules declare --}}
-                <h5 class="fw-semibold mt-4 mb-3 pb-2 border-bottom">{{ __('What the AI did') }}</h5>
+                {{-- What the AI did: the activities the modules declare. Hidden when none does: the hint for
+                     the developers ("implement AiActivityProvider") read as "the AI did nothing" to the users. --}}
                 @if($activities)
+                    <h5 class="fw-semibold mt-4 mb-3 pb-2 border-bottom">{{ __('What the AI did') }}</h5>
                     <div class="row g-3 mb-4">
                         @foreach($activities as $a)
                             <div class="col-md-4 col-lg-3">
@@ -52,8 +53,6 @@
                             </div>
                         @endforeach
                     </div>
-                @else
-                    <p class="small text-muted mb-4">{{ __('Nothing declared yet: a module says what the AI did in it by implementing AiActivityProvider.') }}</p>
                 @endif
 
                 {{-- What it costs: the ledger --}}
