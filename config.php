@@ -130,6 +130,49 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Personal data filter
+    |--------------------------------------------------------------------------
+    | Before a text leaves for the provider, the personal values in it become
+    | placeholders that stay the same for the whole call ("[PERSON_1]",
+    | "[IP_ADDRESS_2]"); the tool arguments and the answer get the real values
+    | back, so the provider never sees them and the user never sees the
+    | placeholders. Applied to the system prompt (knowledge included), the
+    | messages and the tool results. Three sources, added together:
+    |
+    | - `terms`: the name of an invokable class returning the names the
+    |   application knows, as a list or as [name => TYPE] (companies, customers,
+    |   devices): exact and case-insensitive, no guessing;
+    | - `patterns`: TYPE => regular expression; null = the built-ins (e-mail,
+    |   IPv4/IPv6, MAC, IBAN, Italian phone numbers);
+    | - `presidio.url`: a Microsoft Presidio analyzer for the free text (names,
+    |   places, organisations). When it does not answer and `on_error` is
+    |   "block", nothing is sent (AiRedactionException); "pass" sends the text
+    |   with the terms and the patterns only.
+    |
+    | `keep`: words never masked, the jargon of the application ("FWA", "TIM").
+    */
+    'redact' => [
+        'enabled'   => (bool) env('AI_REDACT', false),
+        // The providers whose calls are filtered: a local Ollama usually needs it not.
+        'providers' => ['anthropic', 'openai'],
+        'terms'     => env('AI_REDACT_TERMS', null),
+        'min_term_length' => 3,
+        'patterns'  => null,
+        'keep'      => array_values(array_filter(array_map('trim',
+            explode(',', (string) env('AI_REDACT_KEEP', ''))))),
+        'presidio'  => [
+            'url'      => env('AI_PRESIDIO_URL', null),          // e.g. https://presidio.example.org
+            'language' => env('AI_PRESIDIO_LANGUAGE', 'it'),
+            'score'    => (float) env('AI_PRESIDIO_SCORE', 0.5),
+            'entities' => null,                                   // null = all, but `ignore`
+            'ignore'   => ['DATE_TIME', 'URL', 'NRP'],
+            'timeout'  => (int) env('AI_PRESIDIO_TIMEOUT', 10),
+        ],
+        'on_error'  => env('AI_REDACT_ON_ERROR', 'block'),       // block | pass
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Budget
     |--------------------------------------------------------------------------
     | Tokens of every request are counted (cache) and converted to USD with the

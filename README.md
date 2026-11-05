@@ -234,3 +234,23 @@ Nothing on the page calls a provider.
 ```bash
 composer install && vendor/bin/phpunit
 ```
+
+## Personal data filter
+
+With `AI_REDACT=true` the personal values of every text that leaves for the provider become placeholders,
+`[PERSON_1]`, `[COMPANY_2]`, `[IP_ADDRESS_1]`, the same for the same value during a call; the arguments of the tools
+and the answer get the real values back. The provider never sees them, the user never sees the placeholders.
+
+```dotenv
+AI_REDACT=true
+AI_PRESIDIO_URL=https://presidio.example.org   # optional: names and places in free text (Microsoft Presidio analyzer)
+AI_PRESIDIO_LANGUAGE=it
+AI_REDACT_TERMS="App\\Ai\\KnownNames"            # optional: invokable class, the names the application knows
+AI_REDACT_KEEP="FWA,TIM"                        # words never masked
+AI_REDACT_ON_ERROR=block                         # Presidio down: block (default) or pass
+```
+
+`AI_REDACT_TERMS` names a class returning a list of names, or `[name => TYPE]`: exact and case-insensitive, the
+longest first, so the companies and customers in the database are always caught. The built-in patterns cover
+e-mail, IPv4/IPv6 and MAC addresses, IBANs and Italian phone numbers (`ai.redact.patterns` to change them).
+Presidio is for the free text: notes, tickets, what users type.

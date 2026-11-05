@@ -1,5 +1,16 @@
 # Changelog
 
+## [1.11.0] - 2026-11-05
+
+- **Personal data filter** (`ai.redact`, `AI_REDACT=true`): before a text leaves for the provider the personal
+  values in it become placeholders that stay the same for the whole call (`[PERSON_1]`, `[IP_ADDRESS_2]`); the tool
+  arguments and the answer get the real values back. Applied to the system prompt (knowledge included), the
+  messages and the tool results. Three sources: the names the application knows (`terms`, an invokable class),
+  regular expressions (e-mail, IPv4/IPv6, MAC, IBAN, Italian phone numbers) and a **Microsoft Presidio** analyzer for
+  free text (`AI_PRESIDIO_URL`). `keep` lists the words never masked. When Presidio does not answer nothing is sent
+  (`AiRedactionException`), unless `AI_REDACT_ON_ERROR=pass`. `AiService::$lastMasked` says how many values a call
+  masked. Off by default; a local Ollama is not filtered unless listed in `ai.redact.providers`.
+
 ## [1.10.0] - 2026-10-07
 
 - **`ai.widget.knowledge` takes the name of an invokable class** that returns the documents itself (`title`, `text`,

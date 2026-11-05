@@ -20,6 +20,12 @@ class AiService
     /** What the current call is for, written on every row of the ledger it produces. */
     protected ?string $context = null;
 
+    /** The personal data filter of the current call (config ai.redact), or null when it is off. */
+    protected ?AiRedactor $redactor = null;
+
+    /** How many values the filter masked in the last chat() call. */
+    public int $lastMasked = 0;
+
     public function __construct(
         protected AiUsage $usage,
         protected AiKnowledge $knowledge,
@@ -40,14 +46,63 @@ class AiService
      */
     public function chat(array $messages, bool $withTools = true, ?string $context = null): string
     {
-        $this->lastInput = $this->lastOutput = 0;
+        $this->lastInput = $this->lastOutput = $this->lastMasked = 0;
         $this->context = $context;
+        // A new filter for every call: the placeholders are numbered from 1 each time.
+        $this->redactor = AiRedactor::enabledFor($this->provider) ? new AiRedactor : null;
 
-        return match ($this->provider) {
+        $reply = match ($this->provider) {
             'openai'  => $this->chatOpenAi($messages, $withTools),
             'ollama'  => $this->chatOllama($messages, $withTools),
             default   => $this->chatAnthropic($messages, $withTools),
         };
+        $this->lastMasked = $this->redactor?->masked ?? 0;
+
+        return $this->redactor ? (string) $this->redactor->unmask($reply) : $reply;
+    }
+
+    /** The system prompt as it leaves: masked, and telling the model to keep the placeholders. */
+    protected function outgoingSystemPrompt(): string
+    {
+        $prompt = $this->systemPrompt();
+
+        return $this->redactor ? $this->redactor->mask($prompt)."\n\n".AiRedactor::instructions() : $prompt;
+    }
+
+    /**
+     * The messages as they leave: every text masked, the user's, the tool results, the replies
+     * of the previous rounds (which already hold placeholders only). Both shapes: a string, or
+     * the content blocks of Anthropic.
+     */
+    protected function outgoingMessages(array $messages): array
+    {
+        if (! $this->redactor) {
+            return $messages;
+        }
+
+        return array_map(function ($m) {
+            if (is_string($m['content'] ?? null)) {
+                $m['content'] = $this->redactor->mask($m['content']);
+            } elseif (is_array($m['content'] ?? null)) {
+                $m['content'] = array_map(function ($block) {
+                    if (($block['type'] ?? '') === 'text' && is_string($block['text'] ?? null)) {
+                        $block['text'] = $this->redactor->mask($block['text']);
+                    } elseif (($block['type'] ?? '') === 'tool_result' && is_string($block['content'] ?? null)) {
+                        $block['content'] = $this->redactor->mask($block['content']);
+                    }
+
+                    return $block;
+                }, $m['content']);
+            }
+
+            return $m;
+        }, $messages);
+    }
+
+    /** The arguments of a tool call with the real values back: the tool works on real data. */
+    protected function toolInput(array $input): array
+    {
+        return $this->redactor ? $this->redactor->unmaskArray($input) : $input;
     }
 
     // -------------------------------------------------------------------------
@@ -57,8 +112,8 @@ class AiService
         $payload = [
             'model'      => config('ai.anthropic.model'),
             'max_tokens' => (int) config('ai.widget.max_tokens', 1024),
-            'system'     => $this->systemPrompt(),
-            'messages'   => $messages,
+            'system'     => $this->outgoingSystemPrompt(),
+            'messages'   => $this->outgoingMessages($messages),
         ];
 
         if ($withTools && count($this->tools()) > 0) {
@@ -82,7 +137,7 @@ class AiService
 
             foreach ($toolUses as $block) {
                 $toolResult = $this->allows($block['name'])
-                    ? AiRegistry::execute($block['name'], $block['input'] ?? [])
+                    ? AiRegistry::execute($block['name'], $this->toolInput($block['input'] ?? []))
                     : 'Tool not found.';
 
                 $results[] = [
@@ -115,8 +170,8 @@ class AiService
             'model'      => config('ai.openai.model'),
             'max_tokens' => (int) config('ai.widget.max_tokens', 1024),
             'messages'   => array_merge(
-                [['role' => 'system', 'content' => $this->systemPrompt()]],
-                $messages
+                [['role' => 'system', 'content' => $this->outgoingSystemPrompt()]],
+                $this->outgoingMessages($messages)
             ),
         ];
 
@@ -145,7 +200,7 @@ class AiService
 
             foreach ($message['tool_calls'] as $call) {
                 $toolName   = $call['function']['name'];
-                $toolInput  = json_decode($call['function']['arguments'], true) ?? [];
+                $toolInput  = $this->toolInput(json_decode($call['function']['arguments'], true) ?? []);
                 $toolResult = $this->allows($toolName) ? AiRegistry::execute($toolName, $toolInput) : 'Tool not found.';
 
                 $messages[] = [
@@ -164,8 +219,9 @@ class AiService
 
     protected function chatOllama(array $messages, bool $withTools): string
     {
-        // Ollama's tool-use support varies by model; fall back to context injection
-        $systemWithContext = $this->systemPrompt();
+        // Ollama's tool-use support varies by model; fall back to context injection. It usually runs
+        // here, so the filter is off for it unless `ai.redact.providers` lists it.
+        $systemWithContext = $this->outgoingSystemPrompt();
 
         if ($withTools && count($this->tools()) > 0) {
             $toolDescriptions = collect($this->tools())
@@ -179,7 +235,7 @@ class AiService
             'stream'   => false,
             'messages' => array_merge(
                 [['role' => 'system', 'content' => $systemWithContext]],
-                $messages
+                $this->outgoingMessages($messages)
             ),
         ];
 
