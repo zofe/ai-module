@@ -6,6 +6,7 @@ use App\Modules\Auth\Traits\Authorize;
 use Livewire\Component;
 use Zofe\Ai\AiRegistry;
 use Zofe\Ai\Services\AiKnowledge;
+use Zofe\Ai\Services\AiRedactor;
 use Zofe\Ai\Services\AiService;
 use Zofe\Ai\Services\AiUsage;
 use Zofe\Rapyd\Ai\AiDevelopment;
@@ -109,6 +110,34 @@ class DevelopWithAi extends Component
             'contexts' => $usage->ledgerOn() ? $usage->byContext(now()->startOfMonth()) : [],
             'budget' => $usage->budget(),
             'prices' => [config('ai.budget.price_input'), config('ai.budget.price_output')],
+            'redact' => $this->redaction($provider),
+        ];
+    }
+
+    /** How the personal data is kept from the provider (ai.redact): null when the filter is off for it. */
+    protected function redaction(string $provider): ?array
+    {
+        if (! AiRedactor::enabledFor($provider)) {
+            return null;
+        }
+
+        $terms = null;
+        if ($source = config('ai.redact.terms')) {
+            try {
+                $terms = count((array) app($source)());
+            } catch (\Throwable) {
+                $terms = null;
+            }
+        }
+        $presidio = config('ai.redact.presidio.url');
+
+        return [
+            'terms' => $terms,
+            'patterns' => array_keys((array) (config('ai.redact.patterns') ?? AiRedactor::DEFAULT_PATTERNS)),
+            'presidio' => $presidio ? parse_url($presidio, PHP_URL_HOST) : null,
+            'entities' => config('ai.redact.presidio.entities'),
+            'block' => config('ai.redact.on_error', 'block') === 'block',
+            'keep' => count((array) config('ai.redact.keep', [])),
         ];
     }
 

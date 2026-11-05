@@ -102,6 +102,18 @@ class DevelopWithAiTest extends TestCase
         rmdir($dir);
     }
 
+    public function test_the_page_says_how_the_personal_data_is_protected()
+    {
+        $this->actingAs($this->userWith(true));
+        Livewire::test(DevelopWithAi::class)->assertSee('No filter: the texts leave for the provider as they are');
+
+        config(['ai.redact.enabled' => true, 'ai.redact.presidio.url' => 'https://presidio.example.org', 'ai.redact.presidio.entities' => ['PERSON']]);
+        Livewire::test(DevelopWithAi::class)
+            ->assertSee('Personal data')
+            ->assertSee('Microsoft Presidio on presidio.example.org, for the free text: person.')
+            ->assertSee('If Presidio does not answer, nothing is sent.');
+    }
+
     public function test_the_side_for_the_developers_is_there_unless_the_application_turned_it_off()
     {
         $this->actingAs($this->userWith(true));

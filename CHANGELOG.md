@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.12.0] - 2026-11-05
+
+- **"AI overview" says how the personal data is protected**: a "Personal data" section with what the filter
+  (`ai.redact`) does, how many names the application knows, the values with a shape it masks, the Presidio host with
+  the kinds of data it looks for and what happens when it does not answer, and the words never masked. Where the
+  filter is off for the provider, the page says that the texts leave as they are.
+
 ## [1.11.1] - 2026-11-05
 
 - **Presidio no longer reads the system prompt and the knowledge**, only the messages and the tool results: on a
