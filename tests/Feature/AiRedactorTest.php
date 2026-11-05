@@ -42,6 +42,15 @@ class AiRedactorTest extends TestCase
         $this->assertSame($text, $r->unmask($masked));
     }
 
+    public function test_ipv6_also_abbreviated_but_not_a_time()
+    {
+        $r = new AiRedactor;
+
+        $masked = $r->mask('VPS 2a01:4f8:c0c:1234::1, link fe80::1, lungo 2001:db8:0:0:0:0:0:1; alle 10:30:15');
+
+        $this->assertMatchesRegularExpression('/^VPS \[IPV6_ADDRESS_\d\], link \[IPV6_ADDRESS_\d\], lungo \[IPV6_ADDRESS_\d\]; alle 10:30:15$/', $masked);
+    }
+
     public function test_the_names_the_application_knows_the_longest_first()
     {
         config(['ai.redact.terms' => KnownNames::class]);

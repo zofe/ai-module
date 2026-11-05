@@ -1,5 +1,10 @@
 # Changelog
 
+## [1.12.1] - 2026-11-05
+
+- **IPv6 addresses are masked also when abbreviated** (`2a01:4f8::1`, `fe80::1`): the built-in pattern wanted three
+  to seven full groups and let the usual form through. A time such as `10:30:15` is still not taken for one.
+
 ## [1.12.0] - 2026-11-05
 
 - **"AI overview" says how the personal data is protected**: a "Personal data" section with what the filter
