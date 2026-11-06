@@ -1,5 +1,10 @@
 # Changelog
 
+## [1.15.4] - 2026-11-06
+
+- "AI overview": the two diagrams side by side again on a wide screen, with little room between them and no frame;
+  one under the other below 1200px.
+
 ## [1.15.3] - 2026-11-06
 
 - "AI overview" shows the model and the provider as what they are: read from the configuration of this application
