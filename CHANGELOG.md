@@ -1,5 +1,9 @@
 # Changelog
 
+## [1.17.1] - 2026-11-06
+
+- The English diagram "Who decides what the AI may read" had its remote AI box labelled in Italian.
+
 ## [1.17.0] - 2026-11-06
 
 - `AI_WIDGET_GUEST_TOOLS`: the tools opened to the visitors (customer mode, or nobody logged in), names with `*`

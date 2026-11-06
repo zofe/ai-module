@@ -131,7 +131,7 @@
 
   <rect x="864" y="146" width="292" height="118" rx="14" fill="#ffffff" stroke="#e6c9ad"/>
   <path d="M892,198 C880,198 876,184 888,180 C886,168 902,162 908,172 C914,162 932,166 930,180 C942,182 940,198 928,198 Z" fill="#fbe9da" stroke="#b4500f" stroke-width="2.2" stroke-linejoin="round"/>
-  <text x="946" y="187" class="ct-h">AI remota</text>
+  <text x="946" y="187" class="ct-h">Remote AI</text>
   <text x="884" y="224" class="ct-lab" fill="#b4500f">picks among the offered tools</text>
   <text x="884" y="244" class="ct-d">sees neither the database nor the code</text>
 
