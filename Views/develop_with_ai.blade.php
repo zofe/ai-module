@@ -46,12 +46,14 @@
                     <h5 class="fw-semibold mt-4 mb-3 pb-2 border-bottom">{{ __('What ai-module does') }}</h5>
                     {{-- Side by side on a wide screen, with little room between them and no frame, so that each
                          diagram gets as much width as it can; one under the other below 1200px --}}
-                    <div class="row g-3 mb-2">
+                    <div class="row g-3 mb-2 align-items-start">
                         @foreach($diagrams as $d)
-                            <div class="col-xl-6 d-flex flex-column">
+                            {{-- Aligned at the top: the two explanations get the same height (two lines), so the
+                                 diagrams start on the same line even when only one of them wraps --}}
+                            <div class="col-xl-6">
                                 <h6 class="fw-semibold mb-1">{{ $d['title'] }}</h6>
-                                <p class="small text-muted mb-2">{{ $d['text'] }}</p>
-                                <img src="{{ $d['src'] }}" alt="{{ $d['title'] }}" class="img-fluid rounded mt-auto" loading="lazy">
+                                <p class="small text-muted mb-2" style="min-height: 3em">{{ $d['text'] }}</p>
+                                <img src="{{ $d['src'] }}" alt="{{ $d['title'] }}" class="img-fluid rounded" loading="lazy">
                             </div>
                         @endforeach
                     </div>

@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.15.5] - 2026-11-06
+
+- "AI overview": the two diagrams start on the same line (they were aligned at the bottom, and having different
+  heights they started at different heights).
+- On the page the diagrams show without their own title and subtitle, which repeated the heading above them; the
+  files in `docs/` keep them.
+
 ## [1.15.4] - 2026-11-06
 
 - "AI overview": the two diagrams side by side again on a wide screen, with little room between them and no frame;

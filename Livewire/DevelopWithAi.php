@@ -131,11 +131,26 @@ class DevelopWithAi extends Component
         ] as $name => [$title, $text]) {
             $file = $it && is_file("{$dir}/{$name}.it.svg") ? "{$dir}/{$name}.it.svg" : "{$dir}/{$name}.svg";
             if (is_file($file)) {
-                $out[] = ['title' => $title, 'text' => $text, 'src' => 'data:image/svg+xml;base64,' . base64_encode((string) file_get_contents($file))];
+                $out[] = ['title' => $title, 'text' => $text, 'src' => 'data:image/svg+xml;base64,' . base64_encode($this->withoutTitle((string) file_get_contents($file)))];
             }
         }
 
         return $out;
+    }
+
+    /**
+     * The diagram without its own title and subtitle (the band above y=92): on the page the
+     * heading and the explanation above it say the same. The files in docs/ keep it, for whoever
+     * reads them alone.
+     */
+    protected function withoutTitle(string $svg): string
+    {
+        return (string) preg_replace_callback('/viewBox="(\S+) (\S+) (\S+) (\S+)" width="\S+" height="\S+"/', function ($m) {
+            $cut = 92 - (float) $m[2];
+            $height = (float) $m[4] - $cut;
+
+            return sprintf('viewBox="%s 92 %s %s" width="%s" height="%s"', $m[1], $m[3], $height, $m[3], $height);
+        }, $svg, 1);
     }
 
     /** How the personal data is kept from the provider (ai.redact): null when the filter is off for it. */

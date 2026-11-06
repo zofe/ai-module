@@ -113,15 +113,26 @@ class DevelopWithAiTest extends TestCase
     {
         $this->actingAs($this->userWith(true));
 
-        Livewire::test(DevelopWithAi::class)
+        $images = function (string $html): array {
+            preg_match_all('#src="data:image/svg\+xml;base64,([^"]+)"#', $html, $m);
+
+            return array_map('base64_decode', $m[1]);
+        };
+
+        $html = Livewire::test(DevelopWithAi::class)
             ->assertSee('What ai-module does')
             ->assertSee('It decides what the AI may read')
             ->assertSeeHtml('href="https://github.com/zofe/ai-module"')
-            ->assertSeeHtml('src="data:image/svg+xml;base64,' . base64_encode(file_get_contents(dirname(__DIR__, 2) . '/docs/context-and-tools.svg')));
+            ->html();
+        [$tools, $data] = $images($html);
+        $this->assertStringContainsString('Who decides what the AI may read', $tools, 'the English diagram, who decides first');
+        // On the page the diagram starts below its own title: the heading above says the same.
+        $this->assertStringContainsString('viewBox="18 92 ', $tools);
+        $this->assertStringContainsString('viewBox="18 92 ', $data);
 
         app()->setLocale('it');
-        Livewire::test(DevelopWithAi::class)
-            ->assertSeeHtml(base64_encode(file_get_contents(dirname(__DIR__, 2) . '/docs/data-protection.it.svg')));
+        [$tools] = $images(Livewire::test(DevelopWithAi::class)->html());
+        $this->assertStringContainsString("Chi decide cosa l'AI può leggere", $tools, 'the Italian diagram');
     }
 
     public function test_the_page_says_how_the_personal_data_is_protected()
