@@ -89,7 +89,10 @@ class DevelopWithAi extends Component
         };
 
         $registered = array_map(fn ($tool) => $tool->name, AiRegistry::tools());
-        $offered = app(AiService::class)->tools();
+        $service = app(AiService::class);
+        $offered = $service->forGuest(false)->tools();
+        $guest = $service->forGuest()->tools();
+        $service->forGuest(false);
 
         return [
             'provider' => $provider,
@@ -107,6 +110,8 @@ class DevelopWithAi extends Component
             'tools' => array_map(fn ($tool) => ['name' => $tool->name, 'description' => $tool->description], $offered),
             // Registered by a module but kept out by `ai.widget.tools`: the perimeter, visible.
             'tools_withheld' => array_values(array_diff($registered, array_map(fn ($tool) => $tool->name, $offered))),
+            // What a visitor may read (customer mode, or not logged in): `ai.widget.guest_tools`, none by default.
+            'guest_tools' => array_map(fn ($tool) => $tool->name, $guest),
             'today' => $usage->today(),
             'days' => $usage->lastDays(),
             // The ledger: the month, the whole life of the application and what the money went to.

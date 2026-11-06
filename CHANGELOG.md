@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.17.0] - 2026-11-06
+
+- `AI_WIDGET_GUEST_TOOLS`: the tools opened to the visitors (customer mode, or nobody logged in), names with `*`
+  wildcards, empty by default. A visitor keeps getting no tool, whatever `AI_WIDGET_TOOLS` says; a public demo can
+  open the tools of its demo data (`demo_*`) and nothing else. `AiService::forGuest()` switches the perimeter; the
+  widget sets it at every question.
+- "AI overview" says what a visitor may read: nothing, or the tools the application opened.
+
 ## [1.16.1] - 2026-11-06
 
 - Where the page is public, the sidebar entry "AI overview" shows to the visitors too, next to the modules

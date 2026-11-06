@@ -68,6 +68,14 @@ AI_WIDGET_TOOLS=orders_*,products_*
 Tools left out stay registered — other code can still call them — but they are neither sent to the provider nor
 executed if the model names one anyway. "Develop with AI" shows both lists, so the perimeter is visible.
 
+A visitor — customer mode, or nobody logged in — gets no tool at all, whatever `AI_WIDGET_TOOLS` says: a public bot
+answers from the knowledge. `AI_WIDGET_GUEST_TOOLS` is the one list that opens something to the visitors, with the
+same wildcards; a public demo opens the tools of its demo data and nothing else:
+
+```dotenv
+AI_WIDGET_GUEST_TOOLS=demo_*
+```
+
 ## A system prompt that depends on the data
 
 `ai.widget.system_prompt` takes a string, but a prompt that has to say what today's date is, or which categories exist,

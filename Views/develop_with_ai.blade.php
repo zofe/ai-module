@@ -76,6 +76,18 @@
                 @if($runtime['tools_withheld'])
                     <p class="small text-muted mb-1">{{ __('Registered but out of the perimeter (:setting): :tools', ['setting' => 'ai.widget.tools', 'tools' => implode(', ', $runtime['tools_withheld'])]) }}</p>
                 @endif
+                {{-- The visitors: in customer mode or not logged in, nothing unless the application opened something --}}
+                @if($runtime['mode'] === 'customer' || $runtime['guest_tools'])
+                    <p class="small mb-1">
+                        <span class="text-muted">{{ __('For the visitors (customer mode, or not logged in)') }}:</span>
+                        @if($runtime['guest_tools'])
+                            @foreach($runtime['guest_tools'] as $name)<code class="small">{{ $name }}</code>@if(! $loop->last), @endif @endforeach
+                        @else
+                            {{ __('no tool, the answers come from the knowledge only') }}
+                        @endif
+                        <span class="text-muted">· AI_WIDGET_GUEST_TOOLS</span>
+                    </p>
+                @endif
                 <p class="small text-muted mb-0">
                     {{ __('Widget') }}: {{ $runtime['widget'] ? __('enabled') : __('disabled') }}, {{ __('mode') }} {{ $runtime['mode'] }}
                 </p>

@@ -83,10 +83,11 @@ class AiWidget extends Component
         $this->loading    = true;
 
         try {
-            $service = app(AiService::class);
+            // an operator gets the tools of the application; anyone else the ones opened to the visitors
+            $service = app(AiService::class)->forGuest(! $this->toolsAllowed());
             $reply   = $service->chat(
                 messages: $this->context(),
-                withTools: $this->toolsAllowed(),
+                withTools: $this->toolsAllowed() || $this->guestToolsAllowed(),
                 context: 'widget',
             );
 
@@ -301,6 +302,12 @@ class AiWidget extends Component
         $permission = config('ai.widget.tools_permission');
 
         return !$permission || auth()->user()->can($permission);
+    }
+
+    /** A visitor (customer mode, or not logged in) gets the tools of `ai.widget.guest_tools` only: none by default. */
+    protected function guestToolsAllowed(): bool
+    {
+        return (array) config('ai.widget.guest_tools', []) !== [];
     }
 
     protected function reply(string $question, string $answer, bool $error = false): void

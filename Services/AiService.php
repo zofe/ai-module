@@ -264,7 +264,8 @@ class AiService
         $allowed = $this->allowList();
 
         if ($allowed === []) {
-            return AiRegistry::tools();
+            // every registered tool for the operators; nothing for a visitor
+            return $this->guest ? [] : AiRegistry::tools();
         }
 
         return array_values(array_filter(
@@ -291,13 +292,27 @@ class AiService
 
         $allowed = $this->allowList();
 
-        return $allowed === [] || Str::is($allowed, $name);
+        return $allowed === [] ? ! $this->guest : Str::is($allowed, $name);
+    }
+
+    /** True while the assistant answers a visitor: only `ai.widget.guest_tools` is offered. */
+    protected bool $guest = false;
+
+    /**
+     * Answer as to a visitor (customer mode, or nobody logged in): the perimeter becomes
+     * `ai.widget.guest_tools`, empty by default. The widget sets it at every question.
+     */
+    public function forGuest(bool $guest = true): static
+    {
+        $this->guest = $guest;
+
+        return $this;
     }
 
     /** @return list<string> */
     protected function allowList(): array
     {
-        $allowed = config('ai.widget.tools', []);
+        $allowed = config($this->guest ? 'ai.widget.guest_tools' : 'ai.widget.tools', []);
 
         return array_values(array_filter(array_map('trim', (array) $allowed)));
     }

@@ -202,6 +202,42 @@ class AiWidgetTest extends TestCase
         $this->assertArrayNotHasKey('tools', $this->lastPayload(), 'without the permission: no tools');
     }
 
+    public function test_a_visitor_gets_the_tools_opened_to_the_visitors_and_nothing_else()
+    {
+        $this->fakeProvider();
+        config(['ai.widget.mode' => 'customer', 'ai.widget.system_prompt' => 'bot']);
+        AiRegistry::register(new class implements AiToolProvider {
+            public function tools(): array
+            {
+                return [
+                    new AiTool('count_users', 'Counts the users', ['type' => 'object'], fn () => 3),
+                    new AiTool('demo_overview', 'The numbers of the demo', ['type' => 'object'], fn () => ['articles' => 20]),
+                ];
+            }
+        });
+
+        // by default a visitor has no tool, in customer mode as in operator mode
+        Livewire::test(AiWidget::class)->set('input', 'what is in the demo?')->call('send');
+        $this->assertArrayNotHasKey('tools', $this->lastPayload(), 'customer, nothing opened: no tools');
+
+        config(['ai.widget.guest_tools' => ['demo_*']]);
+        Http::fake(['api.test/*' => Http::response(['choices' => [['message' => ['content' => 'ok']]]])]);
+        Livewire::test(AiWidget::class)->set('input', 'what is in the demo?')->call('send');
+        $offered = array_map(fn ($tool) => $tool['function']['name'], $this->lastPayload()['tools']);
+        $this->assertSame(['demo_overview'], $offered, 'customer: the tools opened to the visitors only');
+
+        config(['ai.widget.mode' => 'operator']);
+        Http::fake(['api.test/*' => Http::response(['choices' => [['message' => ['content' => 'ok']]]])]);
+        Livewire::test(AiWidget::class)->set('input', 'what is in the demo?')->call('send');
+        $offered = array_map(fn ($tool) => $tool['function']['name'], $this->lastPayload()['tools']);
+        $this->assertSame(['demo_overview'], $offered, 'operator mode, not logged in: the same perimeter');
+
+        Http::fake(['api.test/*' => Http::response(['choices' => [['message' => ['content' => 'ok']]]])]);
+        Livewire::actingAs($this->user())->test(AiWidget::class)->set('input', 'how many users?')->call('send');
+        $offered = array_map(fn ($tool) => $tool['function']['name'], $this->lastPayload()['tools']);
+        $this->assertSame(['count_users', 'demo_overview'], $offered, 'an operator logged in: every tool');
+    }
+
     public function test_the_panel_says_what_the_application_configured()
     {
         config(['ai.widget.mode' => 'operator']);

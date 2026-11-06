@@ -116,6 +116,8 @@
     "What the AI did": "Cosa ha fatto l'AI",
     "What the AI did here, what it cost, and what the assistant may read.": "Cosa ha fatto l'AI qui, quanto è costato, e cosa può leggere l'assistente.",
     "What the assistant may read": "Cosa può leggere l'assistente",
+    "For the visitors (customer mode, or not logged in)": "Per i visitatori (modalità customer, o non loggati)",
+    "no tool, the answers come from the knowledge only": "nessuno strumento, le risposte vengono solo dalla conoscenza",
     "What your agent can do here": "Cosa può fare qui il tuo agente",
     "Widget": "Widget",
     "without Authorize": "senza Authorize",

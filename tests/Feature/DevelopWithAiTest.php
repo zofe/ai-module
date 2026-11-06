@@ -67,6 +67,18 @@ class DevelopWithAiTest extends TestCase
         $this->assertStringNotContainsString('ai/develop', view('ai::frontend_menu')->render());
         $this->assertStringNotContainsString('ai/develop', view('ai::admin_menu')->render());
 
+        // the page says what a visitor may read: nothing, or the tools the application opened
+        config(['ai.overview_public' => true]);
+        Livewire::test(DevelopWithAi::class)->assertSee('For the visitors')->assertSee('no tool, the answers come from the knowledge only');
+        AiRegistry::register(new class implements AiToolProvider {
+            public function tools(): array
+            {
+                return [new AiTool('demo_overview', 'The numbers of the demo', ['type' => 'object'], fn () => [])];
+            }
+        });
+        config(['ai.widget.guest_tools' => ['demo_*']]);
+        Livewire::test(DevelopWithAi::class)->assertSeeHtml('<code class="small">demo_overview</code>')->assertSee('AI_WIDGET_GUEST_TOOLS');
+
         // the route has no auth middleware: the component decides
         $this->assertNotContains('auth', \Illuminate\Support\Facades\Route::getRoutes()->getByName('ai.develop')->middleware());
     }

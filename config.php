@@ -108,6 +108,12 @@ return [
         'tools'         => array_values(array_filter(array_map('trim',
             explode(',', (string) env('AI_WIDGET_TOOLS', ''))))),
 
+        // The tools offered to the visitors: in customer mode, and to whoever is not logged
+        // in. Empty (the default) = none: a public bot answers from the knowledge only. A
+        // public demo opens the tools of its demo data here (["demo_*"]), nothing else.
+        'guest_tools'   => array_values(array_filter(array_map('trim',
+            explode(',', (string) env('AI_WIDGET_GUEST_TOOLS', ''))))),
+
         // Knowledge appended to the system prompt: a markdown file (path relative to
         // the app root or absolute), an http(s) URL (cached 1h), a directory (every *.md
         // in it, name order, files starting with "_" or "." left out), an array of
