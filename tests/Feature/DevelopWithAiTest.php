@@ -60,10 +60,12 @@ class DevelopWithAiTest extends TestCase
             ->assertDontSee('Develop with AI')
             ->assertDontSee('Boilerplate written for you');
 
-        // the public navbar carries the entry only then
+        // the public navbar and the sidebar carry the entry for a guest only then
         $this->assertStringContainsString('ai/develop', view('ai::frontend_menu')->render());
+        $this->assertStringContainsString('ai/develop', view('ai::admin_menu')->render());
         config(['ai.overview_public' => false]);
         $this->assertStringNotContainsString('ai/develop', view('ai::frontend_menu')->render());
+        $this->assertStringNotContainsString('ai/develop', view('ai::admin_menu')->render());
 
         // the route has no auth middleware: the component decides
         $this->assertNotContains('auth', \Illuminate\Support\Facades\Route::getRoutes()->getByName('ai.develop')->middleware());

@@ -1,5 +1,10 @@
 # Changelog
 
+## [1.16.1] - 2026-11-06
+
+- Where the page is public, the sidebar entry "AI overview" shows to the visitors too, next to the modules
+  the application opens to them (the demo, for instance).
+
 ## [1.16.0] - 2026-11-06
 
 - `AI_OVERVIEW_PUBLIC=true` opens "AI in this application" to the visitors who are not logged in, costs included,
