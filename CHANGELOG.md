@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.15.3] - 2026-11-06
+
+- "AI overview" shows the model and the provider as what they are: read from the configuration of this application
+  ("Configured in this application: model … · provider …", with the variables that set them).
+- The second diagram calls the production side "in the application" instead of "your network".
+
 ## [1.15.2] - 2026-11-06
 
 - "AI overview": the diagrams one under the other at full width, "who decides what the AI may read" first, without

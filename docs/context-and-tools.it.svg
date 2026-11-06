@@ -74,7 +74,7 @@
 
   <!-- ===== Zona: in esercizio ===== -->
   <rect x="408" y="102" width="420" height="774" rx="20" fill="#eef4f0"/>
-  <text x="432" y="130" class="ct-zone" fill="#2e6b4a">IN ESERCIZIO · LA NOSTRA RETE</text>
+  <text x="432" y="130" class="ct-zone" fill="#2e6b4a">IN ESERCIZIO · NELL'APPLICAZIONE</text>
 
   <!-- ai-module -->
   <rect x="428" y="146" width="380" height="306" rx="14" fill="#ffffff" stroke="#2a5d93" stroke-width="2"/>
