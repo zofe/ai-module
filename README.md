@@ -1,9 +1,11 @@
-# AI module for rapyd-admin
+# AI module for [rapyd-admin](https://github.com/zofe/rapyd-admin)
 
 <a href="https://github.com/zofe/ai-module/actions/workflows/run-tests.yml"><img src="https://github.com/zofe/ai-module/actions/workflows/run-tests.yml/badge.svg" alt="Tests"></a>
 
 A chat widget (`@aiWidget` in any layout), a registry of tools the modules expose to the model, and one service for
-Anthropic, OpenAI-compatible APIs (OpenAI, DeepSeek, Groq, Mistral…) and Ollama.
+Anthropic, OpenAI-compatible APIs (OpenAI, DeepSeek, Groq, Mistral…) and Ollama. It is a module of
+[rapyd-admin](https://github.com/zofe/rapyd-admin), the admin panel on Laravel and Livewire. How the personal data stay
+inside the application, with diagrams: [docs/DATA-PROTECTION.md](docs/DATA-PROTECTION.md).
 
 ```bash
 composer require zofe/ai-module

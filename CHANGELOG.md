@@ -1,5 +1,10 @@
 # Changelog
 
+## [1.15.1] - 2026-11-06
+
+- "AI overview" links to the repository of ai-module; the README links to rapyd-admin and to the data protection
+  diagrams.
+
 ## [1.15.0] - 2026-11-06
 
 - **"AI overview" explains what ai-module does before the numbers.** The "AI in this application" tab opens with two

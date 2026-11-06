@@ -116,6 +116,7 @@ class DevelopWithAiTest extends TestCase
         Livewire::test(DevelopWithAi::class)
             ->assertSee('What ai-module does')
             ->assertSee('It decides what the AI may read')
+            ->assertSeeHtml('href="https://github.com/zofe/ai-module"')
             ->assertSeeHtml('src="data:image/svg+xml;base64,' . base64_encode(file_get_contents(dirname(__DIR__, 2) . '/docs/context-and-tools.svg')));
 
         app()->setLocale('it');

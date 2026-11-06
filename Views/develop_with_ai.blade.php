@@ -32,6 +32,7 @@
                 <p class="text-muted mb-3">
                     {{ __('ai-module brings an AI assistant inside the application: it decides what the AI may read and keeps the personal data inside.') }}
                     {{ __('Model :model via :provider.', ['model' => $runtime['model'], 'provider' => $runtime['provider'] . ($runtime['base_url'] ? ' (' . parse_url($runtime['base_url'], PHP_URL_HOST) . ')' : '')]) }}
+                    <a href="https://github.com/zofe/ai-module" target="_blank" rel="noopener">{{ __('ai-module on GitHub') }}</a>
                 </p>
 
                 {{-- What ai-module does: the two diagrams of docs/, in the language of the page --}}
