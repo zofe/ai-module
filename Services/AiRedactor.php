@@ -50,6 +50,19 @@ class AiRedactor
         'MAC_ADDRESS'   => '/(?<![\w:\-])(?:[0-9a-fA-F]{2}[:\-]){5}[0-9a-fA-F]{2}(?![\w:\-])/',
         'IBAN_CODE'     => '/\b[A-Z]{2}\d{2}(?: ?[A-Z0-9]{4}){3,7}(?: ?[A-Z0-9]{1,4})?\b/',
         'PHONE_NUMBER'  => '/(?<![\d.])(?:\+39[ ]?)?(?:3\d{2}|0\d{1,3})[ .\-]?\d{3}[ .\-]?\d{3,5}(?![\d.])/',
+        // Host names: at least one dot and a top-level domain of letters, not file names ("07-guide.md",
+        // "config.php"). The public names an application needs go in `keep`.
+        'HOSTNAME'      => '/(?<![\w@.\/-])(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+(?!(?:md|php|js|json|sh|txt|ya?ml|conf|log|html?|css|go|py|ipk|pdf|png|svg|csv|sql|env|lock|bak|gz|tar|zip)(?![a-z]))[a-z]{2,24}(?![\w-]|\.\w)/i',
+        // Passwords and credentials have no shape: the value after a keyword is masked ("password:
+        // Tim2024!", "chiave wifi del modem = zz88", "pwd=xK9#pp"), a secret one after a keyword also
+        // without ":" when it has a digit or a symbol ("la password è Abc123", "il pin della SIM è
+        // 1234"), and the pairs written together ("admin/admin"). A password with no word near it
+        // ("ho messo Tim2024!") cannot be told from an ordinary word.
+        'CREDENTIAL'    => [
+            '/\b(?:password|passwd|pass|pwd|psw|pin|chiave|key|secret|segreto|token|passphrase|utente|user|username|login|account)\b(?:[ \t]+[\p{L}\d]+){0,3}?[ \t]*[:=][ \t]*\K[^\s,;]+(?<![.)])/iu',
+            '/\b(?:password|passwd|pass|pwd|psw|pin|chiave|key|secret|segreto|token)\b(?:[ \t]+\p{L}+){0,3}?[ \t]+(?:(?:è|e\'|é)[ \t]+)?\K(?=[^\s,;]*[\d!@#$%^&*?+_])[^\s,;]+(?<![.)])/iu',
+            '/(?<![\w\/.:])(?:admin|root|user|utente|support|supervisor)\/[^\s,;\/]+(?![\w\/])/iu',
+        ],
     ];
 
     public static function enabledFor(string $provider): bool
@@ -139,11 +152,14 @@ class AiRedactor
         return $spans;
     }
 
+    /** TYPE => regular expression, or a list of them for a type with more than one shape. */
     protected function patternSpans(string $text): array
     {
         $spans = [];
-        foreach ((array) (config('ai.redact.patterns') ?? self::DEFAULT_PATTERNS) as $type => $regex) {
-            array_push($spans, ...$this->regexSpans($text, $regex, $type, 0.9));
+        foreach ((array) (config('ai.redact.patterns') ?? self::DEFAULT_PATTERNS) as $type => $regexes) {
+            foreach ((array) $regexes as $regex) {
+                array_push($spans, ...$this->regexSpans($text, $regex, $type, 0.9));
+            }
         }
 
         return $spans;

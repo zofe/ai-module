@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.14.0] - 2026-11-06
+
+- **Host names and credentials are masked by the built-in patterns.** `HOSTNAME`: names with a dot and a top-level
+  domain of letters, not file names; the public names the assistant needs go in `keep`. `CREDENTIAL`: the value after
+  a keyword (password, pwd, pin, chiave, key, utente, user, login…), also a few words later ("chiave wifi del modem:"),
+  a secret one without ":" when it has a digit or a symbol ("la password è Abc123"), and the pairs written together
+  ("admin/admin"). A password with no word near it is not recognised.
+- `ai.redact.patterns` takes a list of expressions for a type.
+
 ## [1.13.1] - 2026-11-05
 
 - **"What the AI did" is hidden when no module declares an activity**: the hint for the developers ("implement

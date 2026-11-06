@@ -42,6 +42,42 @@ class AiRedactorTest extends TestCase
         $this->assertSame($text, $r->unmask($masked));
     }
 
+    public function test_public_addresses_host_names_and_credentials_never_leave()
+    {
+        $r = new AiRedactor;
+        $cases = [
+            'Il VPS 158.173.40.193 e la linea 109.52.199.159' => ['158.173.40.193', '109.52.199.159'],
+            'Il cliente ha pasticceria-rossi.it, il Box 60beb42fd63c.uania.cloud' => ['pasticceria-rossi.it', '60beb42fd63c.uania.cloud'],
+            'credenziali modem: user: admin password: Tim2024!' => ['admin', 'Tim2024!'],
+            'la password è Abc123 e il pin 4521' => ['Abc123', '4521'],
+            'pppoe utente=mario.rossi@alice.it pwd=xK9#pp' => ['mario.rossi@alice.it', 'xK9#pp'],
+            'chiave wifi: CasaRossi2020' => ['CasaRossi2020'],
+            'password del modem = zz88' => ['zz88'],
+            'il pin della SIM è 1234.' => ['1234'],
+            'accedere con admin/admin al modem, oppure root/Uania!2' => ['admin/admin', 'root/Uania!2'],
+        ];
+        foreach ($cases as $text => $secrets) {
+            $masked = $r->mask($text);
+            foreach ($secrets as $secret) {
+                $this->assertStringNotContainsString($secret, $masked, $text);
+            }
+        }
+        $this->assertSame('chiave wifi: [CREDENTIAL_6]', $r->mask('chiave wifi: CasaRossi2020'), 'the keyword stays, the value goes');
+    }
+
+    public function test_ordinary_words_files_and_dates_stay()
+    {
+        $r = new AiRedactor;
+        foreach ([
+            'la password è stata cambiata ieri',
+            "l'utente dice che la linea cade",
+            'vedi /etc/config/network e 24/7, il file 07-uaniaos.md e config.php',
+            'Service 0.3.19 su OpenWrt 24.10, alle 10:30:15',
+        ] as $text) {
+            $this->assertSame($text, $r->mask($text));
+        }
+    }
+
     public function test_ipv6_also_abbreviated_but_not_a_time()
     {
         $r = new AiRedactor;

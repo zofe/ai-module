@@ -161,7 +161,7 @@ return [
         // ("customers and companies copied from the CRM"); null = a generic description.
         'terms_description' => env('AI_REDACT_TERMS_DESCRIPTION', null),
         'min_term_length' => 3,
-        'patterns'  => null,
+        'patterns'  => null,   // null = AiRedactor::DEFAULT_PATTERNS; TYPE => regex or [regex, …]
         'keep'      => array_values(array_filter(array_map('trim',
             explode(',', (string) env('AI_REDACT_KEEP', ''))))),
         'presidio'  => [
