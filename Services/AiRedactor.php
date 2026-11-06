@@ -53,13 +53,15 @@ class AiRedactor
         // Host names: at least one dot and a top-level domain of letters, not file names ("07-guide.md",
         // "config.php"). The public names an application needs go in `keep`.
         'HOSTNAME'      => '/(?<![\w@.\/-])(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+(?!(?:md|php|js|json|sh|txt|ya?ml|conf|log|html?|css|go|py|ipk|pdf|png|svg|csv|sql|env|lock|bak|gz|tar|zip)(?![a-z]))[a-z]{2,24}(?![\w-]|\.\w)/i',
-        // Passwords and credentials have no shape: the value after a keyword is masked ("password:
-        // Tim2024!", "chiave wifi del modem = zz88", "pwd=xK9#pp"), a secret one after a keyword also
-        // without ":" when it has a digit or a symbol ("la password è Abc123", "il pin della SIM è
-        // 1234"), and the pairs written together ("admin/admin"). A password with no word near it
+        // Passwords and credentials have no shape: the value after a user keyword and ":" or "=" ("user:
+        // admin"), the value after a secret keyword when it looks like one, with a digit, a symbol or a
+        // capital ("password: Tim2024!", "chiave wifi del modem = zz88", "la password è Abc123", "il pin
+        // della SIM è 1234"; not "la Cloud key: entra nel Canale"), and the pairs written together
+        // ("admin/admin"). A password with no word near it
         // ("ho messo Tim2024!") cannot be told from an ordinary word.
         'CREDENTIAL'    => [
-            '/\b(?:password|passwd|pass|pwd|psw|pin|chiave|key|secret|segreto|token|passphrase|utente|user|username|login|account)\b(?:[ \t]+[\p{L}\d]+){0,3}?[ \t]*[:=][ \t]*\K[^\s,;]+(?<![.)])/iu',
+            '/\b(?:utente|user|username|login|account)\b(?:[ \t]+[\p{L}\d]+){0,3}?[ \t]*[:=][ \t]*\K[^\s,;]+(?<![.)])/iu',
+            '/\b(?i:password|passwd|pass|pwd|psw|pin|chiave|key|secret|segreto|token|passphrase)\b(?:[ \t]+[\p{L}\d]+){0,3}?[ \t]*[:=][ \t]*\K(?=[^\s,;]*[\d\p{Lu}!@#$%^&*?+_])[^\s,;]+(?<![.)])/u',
             '/\b(?:password|passwd|pass|pwd|psw|pin|chiave|key|secret|segreto|token)\b(?:[ \t]+\p{L}+){0,3}?[ \t]+(?:(?:è|e\'|é)[ \t]+)?\K(?=[^\s,;]*[\d!@#$%^&*?+_])[^\s,;]+(?<![.)])/iu',
             '/(?<![\w\/.:])(?:admin|root|user|utente|support|supervisor)\/[^\s,;\/]+(?![\w\/])/iu',
         ],

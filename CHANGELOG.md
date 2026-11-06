@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.14.1] - 2026-11-06
+
+- `CREDENTIAL` no longer takes prose for a password: after a secret keyword (password, key, chiave, pin…) the value is
+  masked only when it looks like one, with a digit, a symbol or a capital. "la Cloud key: entra nel Canale" stays as it
+  is; "password: Tim2024!" and "user: admin" are still masked.
+
 ## [1.14.0] - 2026-11-06
 
 - **Host names and credentials are masked by the built-in patterns.** `HOSTNAME`: names with a dot and a top-level

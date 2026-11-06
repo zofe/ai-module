@@ -53,6 +53,7 @@ class AiRedactorTest extends TestCase
             'pppoe utente=mario.rossi@alice.it pwd=xK9#pp' => ['mario.rossi@alice.it', 'xK9#pp'],
             'chiave wifi: CasaRossi2020' => ['CasaRossi2020'],
             'password del modem = zz88' => ['zz88'],
+            'Password WiFi: casa2020' => ['casa2020'],
             'il pin della SIM è 1234.' => ['1234'],
             'accedere con admin/admin al modem, oppure root/Uania!2' => ['admin/admin', 'root/Uania!2'],
         ];
@@ -73,6 +74,7 @@ class AiRedactorTest extends TestCase
             "l'utente dice che la linea cade",
             'vedi /etc/config/network e 24/7, il file 07-uaniaos.md e config.php',
             'Service 0.3.19 su OpenWrt 24.10, alle 10:30:15',
+            'Un Box appena installato non ha ancora la Cloud key: entra nel Canale provvisorio',
         ] as $text) {
             $this->assertSame($text, $r->mask($text));
         }
