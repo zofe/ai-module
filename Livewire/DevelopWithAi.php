@@ -114,6 +114,30 @@ class DevelopWithAi extends Component
         ];
     }
 
+    /**
+     * The diagrams of docs/ (how the data stay inside, how context and tools work), in the language
+     * of the page when there is a translation, as data URIs: the package has no public assets.
+     *
+     * @return list<array{title: string, text: string, src: string}>
+     */
+    protected function diagrams(): array
+    {
+        $dir = dirname(__DIR__) . '/docs';
+        $it = str_starts_with(app()->getLocale(), 'it');
+        $out = [];
+        foreach ([
+            'data-protection' => [__('It keeps the personal data inside'), __('Before calling the AI it masks names, addresses and credentials, with Presidio for the names in free text, and puts the real values back in the answer.')],
+            'context-and-tools' => [__('It decides what the AI may read'), __('Only the context and the tools the developers wrote: every tool reads its own window of the data, and the rest of the database does not exist for the AI.')],
+        ] as $name => [$title, $text]) {
+            $file = $it && is_file("{$dir}/{$name}.it.svg") ? "{$dir}/{$name}.it.svg" : "{$dir}/{$name}.svg";
+            if (is_file($file)) {
+                $out[] = ['title' => $title, 'text' => $text, 'src' => 'data:image/svg+xml;base64,' . base64_encode((string) file_get_contents($file))];
+            }
+        }
+
+        return $out;
+    }
+
     /** How the personal data is kept from the provider (ai.redact): null when the filter is off for it. */
     protected function redaction(string $provider): ?array
     {
@@ -160,7 +184,7 @@ class DevelopWithAi extends Component
 
     public function render()
     {
-        return view('ai::develop_with_ai', ['unlocks' => $this->unlocks(), 'develop' => $this->develop()])
+        return view('ai::develop_with_ai', ['unlocks' => $this->unlocks(), 'develop' => $this->develop(), 'diagrams' => $this->diagrams()])
             ->layout(config('ai.layout', 'layout::admin'));
     }
 }

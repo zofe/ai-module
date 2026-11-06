@@ -135,5 +135,13 @@
     "The names the application already knows (:what): :count, masked exactly as they are written, wherever they appear.": "I nomi che l'applicazione conosce già (:what): :count, oscurati esattamente come sono scritti, ovunque compaiano.",
     "customers, companies, devices": "clienti, aziende, dispositivi",
     "Never masked, because they are words of the trade or public names that the assistant needs:": "Non vengono mai oscurate, perché sono parole del mestiere o nomi pubblici che servono all'assistente:",
-    "and :count more": "e altre :count"
+    "and :count more": "e altre :count",
+    "ai-module brings an AI assistant inside the application: it decides what the AI may read and keeps the personal data inside.": "ai-module porta un assistente AI dentro l'applicazione: decide cosa l'AI può leggere e tiene i dati personali dentro.",
+    "What ai-module does": "Cosa fa ai-module",
+    "In this application, now": "In questa applicazione, adesso",
+    "How the filter is set, what the assistant may read and what it knows.": "Com'è impostato il filtro, cosa può leggere l'assistente e cosa sa.",
+    "It keeps the personal data inside": "Tiene dentro i dati personali",
+    "Before calling the AI it masks names, addresses and credentials, with Presidio for the names in free text, and puts the real values back in the answer.": "Prima di chiamare l'AI oscura nomi, indirizzi e credenziali, con Presidio per i nomi nel testo libero, e rimette i valori veri nella risposta.",
+    "It decides what the AI may read": "Decide cosa l'AI può leggere",
+    "Only the context and the tools the developers wrote: every tool reads its own window of the data, and the rest of the database does not exist for the AI.": "Solo il contesto e gli strumenti scritti da chi sviluppa: ogni strumento legge la sua finestra di dati, e il resto del database per l'AI non esiste."
 }

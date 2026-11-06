@@ -30,10 +30,106 @@
                     {{ __('Set :provider and its key in :env (Anthropic, OpenAI or any OpenAI-compatible API such as DeepSeek, or Ollama on your machine).', ['provider' => 'AI_PROVIDER', 'env' => '.env']) }}</p>
             @else
                 <p class="text-muted mb-3">
-                    {{ __('What the AI did here, what it cost, and what the assistant may read.') }}
+                    {{ __('ai-module brings an AI assistant inside the application: it decides what the AI may read and keeps the personal data inside.') }}
                     {{ __('Model :model via :provider.', ['model' => $runtime['model'], 'provider' => $runtime['provider'] . ($runtime['base_url'] ? ' (' . parse_url($runtime['base_url'], PHP_URL_HOST) . ')' : '')]) }}
                 </p>
 
+                {{-- What ai-module does: the two diagrams of docs/, in the language of the page --}}
+                @if($diagrams)
+                    <h5 class="fw-semibold mt-4 mb-3 pb-2 border-bottom">{{ __('What ai-module does') }}</h5>
+                    <div class="row g-4 mb-2">
+                        @foreach($diagrams as $d)
+                            <div class="col-xl-6">
+                                <h6 class="fw-semibold mb-1">{{ $d['title'] }}</h6>
+                                <p class="small text-muted mb-2">{{ $d['text'] }}</p>
+                                <img src="{{ $d['src'] }}" alt="{{ $d['title'] }}" class="img-fluid border rounded" loading="lazy">
+                            </div>
+                        @endforeach
+                    </div>
+                @endif
+
+                <h5 class="fw-semibold mt-5 mb-1">{{ __('In this application, now') }}</h5>
+                <p class="small text-muted mb-0">{{ __('How the filter is set, what the assistant may read and what it knows.') }}</p>
+
+                {{-- What the assistant may read --}}
+                <h5 class="fw-semibold mt-4 mb-3 pb-2 border-bottom">{{ __('What the assistant may read') }}</h5>
+                @if($runtime['tools'])
+                    <ul class="list-unstyled mb-1">
+                        @foreach($runtime['tools'] as $tool)
+                            <li class="mb-1"><code class="small">{{ $tool['name'] }}</code> <span class="small text-muted">— {{ $tool['description'] }}</span></li>
+                        @endforeach
+                    </ul>
+                @else
+                    <p class="small text-muted mb-1">{{ __('none registered (modules implement AiToolProvider)') }}</p>
+                @endif
+                @if($runtime['tools_withheld'])
+                    <p class="small text-muted mb-1">{{ __('Registered but out of the perimeter (:setting): :tools', ['setting' => 'ai.widget.tools', 'tools' => implode(', ', $runtime['tools_withheld'])]) }}</p>
+                @endif
+                <p class="small text-muted mb-0">
+                    {{ __('Widget') }}: {{ $runtime['widget'] ? __('enabled') : __('disabled') }}, {{ __('mode') }} {{ $runtime['mode'] }}
+                </p>
+
+                {{-- How the personal data is kept from the provider --}}
+                <h5 class="fw-semibold mt-4 mb-3 pb-2 border-bottom">{{ __('Personal data') }}</h5>
+                @if($r = $runtime['redact'])
+                    @php $n = fn ($v) => number_format($v, 0, ',', in_array(app()->getLocale(), ['it', 'de', 'es', 'pt_BR'], true) ? '.' : ','); @endphp
+                    @if($r['presidio'])
+                        <div class="alert alert-success small py-2 mb-2">
+                            <strong>{{ __('Sensitive data protected with Microsoft Presidio') }}</strong>,
+                            {{ __('the open source analyzer by Microsoft, running on :host.', ['host' => $r['presidio']]) }}
+                        </div>
+                    @endif
+                    <p class="small mb-2">
+                        {{ __('Before a text leaves for the provider, the personal values in it become placeholders such as [PERSON_1] or [IP_ADDRESS_2]; the answer gets the real values back. The provider never sees them.') }}
+                    </p>
+                    <ul class="small mb-1">
+                        @if($r['presidio'])
+                            <li>
+                                {{ __('Presidio finds in the free text: :entities.', ['entities' => $r['entities'] ? strtolower(str_replace('_', ' ', implode(', ', $r['entities']))) : __('every kind of personal data')]) }}
+                                {{ __('It reads the questions and the tool results, not the instructions and the documents of the application.') }}
+                                {{ $r['block'] ? __('If Presidio does not answer, nothing is sent.') : __('If Presidio does not answer, the text leaves filtered by the other sources only.') }}
+                            </li>
+                        @endif
+                        @if($r['terms'] !== null)
+                            <li>{{ __('The names the application already knows (:what): :count, masked exactly as they are written, wherever they appear.', ['what' => $r['terms_description'] ?: __('customers, companies, devices'), 'count' => $n($r['terms'])]) }}</li>
+                        @endif
+                        <li>{{ __('Values with a shape: :types.', ['types' => strtolower(str_replace('_', ' ', implode(', ', $r['patterns'])))]) }}</li>
+                        @if($r['keep'])
+                            <li>
+                                {{ __('Never masked, because they are words of the trade or public names that the assistant needs:') }}
+                                {{ implode(', ', array_slice($r['keep'], 0, 30)) }}@if(count($r['keep']) > 30) {{ __('and :count more', ['count' => count($r['keep']) - 30]) }}@endif.
+                            </li>
+                        @endif
+                    </ul>
+                @else
+                    <p class="small text-muted mb-0">{{ __('No filter: the texts leave for the provider as they are (AI_REDACT).') }}</p>
+                @endif
+
+            @endif
+        </div>
+
+        {{-- What the assistant knows: the documents, readable here --}}
+        <div x-show="tab === 'app'">
+            @if($runtime['configured'] && $runtime['knowledge_docs'])
+                @php $knowledgeLength = array_sum(array_map(fn ($d) => mb_strlen($d['text']), $runtime['knowledge_docs'])); @endphp
+                <h5 class="fw-semibold mt-4 mb-3 pb-2 border-bottom">{{ __('What it knows') }}</h5>
+                <p class="small text-muted">
+                    {{ __('These documents are added to every question. They are files of the application: to correct what the assistant knows, edit them.') }}
+                    {{ __(':chars characters in :docs documents, limit :max.', ['chars' => number_format($knowledgeLength), 'docs' => count($runtime['knowledge_docs']), 'max' => number_format($runtime['knowledge_max'])]) }}
+                    @if($knowledgeLength > $runtime['knowledge_max'])<span class="text-danger">{{ __('Over the limit: the end is cut off.') }}</span>@endif
+                </p>
+                @foreach($runtime['knowledge_docs'] as $doc)
+                    <details class="border rounded p-3 mb-2">
+                        <summary><strong>{{ $doc['title'] }}</strong> @if(($doc['file'] ?? '') !== $doc['title'])<code class="small text-muted ms-2">{{ $doc['file'] }}</code>@endif <span class="small text-muted">· {{ number_format(mb_strlen($doc['text'])) }}@if(! empty($doc['updated_at'])) · {{ $doc['updated_at'] }}@endif@if(! empty($doc['author'])) · {{ $doc['author'] }}@endif</span></summary>
+                        <div class="rpd-markdown mt-3 small" style="max-height: 70vh; overflow: auto">{!! $doc['html'] !!}</div>
+                    </details>
+                @endforeach
+            @endif
+        </div>
+
+        {{-- What the AI did and what it costs: after what it does and what it may read --}}
+        <div x-show="tab === 'app'">
+            @if($runtime['configured'])
                 {{-- What the AI did: the activities the modules declare. Hidden when none does: the hint for
                      the developers ("implement AiActivityProvider") read as "the AI did nothing" to the users. --}}
                 @if($activities)
@@ -110,78 +206,6 @@
                     </table>
                 </details>
 
-                {{-- What the assistant may read --}}
-                <h5 class="fw-semibold mt-4 mb-3 pb-2 border-bottom">{{ __('What the assistant may read') }}</h5>
-                @if($runtime['tools'])
-                    <ul class="list-unstyled mb-1">
-                        @foreach($runtime['tools'] as $tool)
-                            <li class="mb-1"><code class="small">{{ $tool['name'] }}</code> <span class="small text-muted">— {{ $tool['description'] }}</span></li>
-                        @endforeach
-                    </ul>
-                @else
-                    <p class="small text-muted mb-1">{{ __('none registered (modules implement AiToolProvider)') }}</p>
-                @endif
-                @if($runtime['tools_withheld'])
-                    <p class="small text-muted mb-1">{{ __('Registered but out of the perimeter (:setting): :tools', ['setting' => 'ai.widget.tools', 'tools' => implode(', ', $runtime['tools_withheld'])]) }}</p>
-                @endif
-                <p class="small text-muted mb-0">
-                    {{ __('Widget') }}: {{ $runtime['widget'] ? __('enabled') : __('disabled') }}, {{ __('mode') }} {{ $runtime['mode'] }}
-                </p>
-
-                {{-- How the personal data is kept from the provider --}}
-                <h5 class="fw-semibold mt-4 mb-3 pb-2 border-bottom">{{ __('Personal data') }}</h5>
-                @if($r = $runtime['redact'])
-                    @php $n = fn ($v) => number_format($v, 0, ',', in_array(app()->getLocale(), ['it', 'de', 'es', 'pt_BR'], true) ? '.' : ','); @endphp
-                    @if($r['presidio'])
-                        <div class="alert alert-success small py-2 mb-2">
-                            <strong>{{ __('Sensitive data protected with Microsoft Presidio') }}</strong>,
-                            {{ __('the open source analyzer by Microsoft, running on :host.', ['host' => $r['presidio']]) }}
-                        </div>
-                    @endif
-                    <p class="small mb-2">
-                        {{ __('Before a text leaves for the provider, the personal values in it become placeholders such as [PERSON_1] or [IP_ADDRESS_2]; the answer gets the real values back. The provider never sees them.') }}
-                    </p>
-                    <ul class="small mb-1">
-                        @if($r['presidio'])
-                            <li>
-                                {{ __('Presidio finds in the free text: :entities.', ['entities' => $r['entities'] ? strtolower(str_replace('_', ' ', implode(', ', $r['entities']))) : __('every kind of personal data')]) }}
-                                {{ __('It reads the questions and the tool results, not the instructions and the documents of the application.') }}
-                                {{ $r['block'] ? __('If Presidio does not answer, nothing is sent.') : __('If Presidio does not answer, the text leaves filtered by the other sources only.') }}
-                            </li>
-                        @endif
-                        @if($r['terms'] !== null)
-                            <li>{{ __('The names the application already knows (:what): :count, masked exactly as they are written, wherever they appear.', ['what' => $r['terms_description'] ?: __('customers, companies, devices'), 'count' => $n($r['terms'])]) }}</li>
-                        @endif
-                        <li>{{ __('Values with a shape: :types.', ['types' => strtolower(str_replace('_', ' ', implode(', ', $r['patterns'])))]) }}</li>
-                        @if($r['keep'])
-                            <li>
-                                {{ __('Never masked, because they are words of the trade or public names that the assistant needs:') }}
-                                {{ implode(', ', array_slice($r['keep'], 0, 30)) }}@if(count($r['keep']) > 30) {{ __('and :count more', ['count' => count($r['keep']) - 30]) }}@endif.
-                            </li>
-                        @endif
-                    </ul>
-                @else
-                    <p class="small text-muted mb-0">{{ __('No filter: the texts leave for the provider as they are (AI_REDACT).') }}</p>
-                @endif
-            @endif
-        </div>
-
-        {{-- What the assistant knows: the documents, readable here --}}
-        <div x-show="tab === 'app'">
-            @if($runtime['configured'] && $runtime['knowledge_docs'])
-                @php $knowledgeLength = array_sum(array_map(fn ($d) => mb_strlen($d['text']), $runtime['knowledge_docs'])); @endphp
-                <h5 class="fw-semibold mt-4 mb-3 pb-2 border-bottom">{{ __('What it knows') }}</h5>
-                <p class="small text-muted">
-                    {{ __('These documents are added to every question. They are files of the application: to correct what the assistant knows, edit them.') }}
-                    {{ __(':chars characters in :docs documents, limit :max.', ['chars' => number_format($knowledgeLength), 'docs' => count($runtime['knowledge_docs']), 'max' => number_format($runtime['knowledge_max'])]) }}
-                    @if($knowledgeLength > $runtime['knowledge_max'])<span class="text-danger">{{ __('Over the limit: the end is cut off.') }}</span>@endif
-                </p>
-                @foreach($runtime['knowledge_docs'] as $doc)
-                    <details class="border rounded p-3 mb-2">
-                        <summary><strong>{{ $doc['title'] }}</strong> @if(($doc['file'] ?? '') !== $doc['title'])<code class="small text-muted ms-2">{{ $doc['file'] }}</code>@endif <span class="small text-muted">· {{ number_format(mb_strlen($doc['text'])) }}@if(! empty($doc['updated_at'])) · {{ $doc['updated_at'] }}@endif@if(! empty($doc['author'])) · {{ $doc['author'] }}@endif</span></summary>
-                        <div class="rpd-markdown mt-3 small" style="max-height: 70vh; overflow: auto">{!! $doc['html'] !!}</div>
-                    </details>
-                @endforeach
             @endif
         </div>
 

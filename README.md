@@ -237,6 +237,8 @@ composer install && vendor/bin/phpunit
 
 ## Personal data filter
 
+How the data stays inside the application, with a diagram: [docs/DATA-PROTECTION.md](docs/DATA-PROTECTION.md).
+
 With `AI_REDACT=true` the personal values of every text that leaves for the provider become placeholders,
 `[PERSON_1]`, `[COMPANY_2]`, `[IP_ADDRESS_1]`, the same for the same value during a call; the arguments of the tools
 and the answer get the real values back. The provider never sees them, the user never sees the placeholders.

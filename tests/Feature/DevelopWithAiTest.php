@@ -109,6 +109,20 @@ class DevelopWithAiTest extends TestCase
         Livewire::test(DevelopWithAi::class)->assertDontSeeHtml('>What the AI did</h5>')->assertDontSee('AiActivityProvider');
     }
 
+    public function test_the_page_shows_how_it_works_in_the_language_of_the_page()
+    {
+        $this->actingAs($this->userWith(true));
+
+        Livewire::test(DevelopWithAi::class)
+            ->assertSee('What ai-module does')
+            ->assertSee('It decides what the AI may read')
+            ->assertSeeHtml('src="data:image/svg+xml;base64,' . base64_encode(file_get_contents(dirname(__DIR__, 2) . '/docs/context-and-tools.svg')));
+
+        app()->setLocale('it');
+        Livewire::test(DevelopWithAi::class)
+            ->assertSeeHtml(base64_encode(file_get_contents(dirname(__DIR__, 2) . '/docs/data-protection.it.svg')));
+    }
+
     public function test_the_page_says_how_the_personal_data_is_protected()
     {
         $this->actingAs($this->userWith(true));

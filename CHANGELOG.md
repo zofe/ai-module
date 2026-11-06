@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.15.0] - 2026-11-06
+
+- **"AI overview" explains what ai-module does before the numbers.** The "AI in this application" tab opens with two
+  diagrams, in the language of the page (English and Italian): how the personal data stay inside (who does what:
+  Presidio finds the names, ai-module masks, calls the AI and restores, the remote AI sees only placeholders), and who
+  decides what the AI may read (context files, tools and allow-list written in development, offered and checked by
+  ai-module in production). Then the state of this application (personal data, tools, knowledge); activity and costs
+  at the end. The same diagrams, with the text, in `docs/DATA-PROTECTION.md` (and `.it.md`).
+
 ## [1.14.1] - 2026-11-06
 
 - `CREDENTIAL` no longer takes prose for a password: after a secret keyword (password, key, chiave, pin…) the value is

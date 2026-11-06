@@ -1,0 +1,156 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 900" width="1200" height="900" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif">
+  <title>Chi decide cosa l'AI può leggere</title>
+  <defs>
+    <marker id="ct-v" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#6b3fa0"/></marker>
+    <marker id="ct-b" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#2a5d93"/></marker>
+    <marker id="ct-o" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#b4500f"/></marker>
+    <style>
+      .ct-h { font-size: 19px; font-weight: 800; fill: #1d2421; }
+      .ct-t { font-size: 15px; font-weight: 800; fill: #1d2421; }
+      .ct-d { font-size: 13.5px; fill: #55605b; }
+      .ct-lab { font-size: 13.5px; font-weight: 800; }
+      .ct-m { font-family: 'SFMono-Regular', Menlo, Consolas, monospace; font-size: 12.5px; fill: #1d2421; }
+      .ct-ph { fill: #2a5d93; font-weight: 700; }
+      .ct-zone { font-size: 13px; font-weight: 800; letter-spacing: 1.6px; }
+      .ct-ok { fill: #2e6b4a; font-weight: 800; }
+      .ct-no { font-size: 12px; fill: #9a2f00; font-weight: 700; }
+    </style>
+  </defs>
+
+  <rect width="1200" height="900" fill="#fbfbf9"/>
+
+  <text x="40" y="50" font-size="26" font-weight="800" fill="#1d2421">Chi decide cosa l'AI può leggere</text>
+  <text x="40" y="78" class="ct-d" font-size="15">Lo decide chi sviluppa, nel codice. In esercizio ai-module offre all'AI solo quello: il resto del database per lei non esiste.</text>
+
+  <!-- ===== Zona: in sviluppo ===== -->
+  <rect x="24" y="102" width="340" height="774" rx="20" fill="#f4f0f9"/>
+  <text x="48" y="130" class="ct-zone" fill="#6b3fa0">IN SVILUPPO</text>
+
+  <rect x="44" y="146" width="300" height="118" rx="14" fill="#ffffff" stroke="#d6c8ea"/>
+  <!-- icona: portatile -->
+  <rect x="64" y="164" width="38" height="24" rx="3" fill="#f1ebf9" stroke="#6b3fa0" stroke-width="2.2"/>
+  <path d="M58,192 H108 L104,198 H62 Z" fill="#6b3fa0"/>
+  <text x="116" y="185" class="ct-h">Chi sviluppa</text>
+  <text x="64" y="222" class="ct-lab" fill="#6b3fa0">con la sua AI locale</text>
+  <text x="64" y="241" class="ct-d">Claude Code, Codex… guidata dalle</text>
+  <text x="64" y="257" class="ct-d">istruzioni di rapyd-admin</text>
+
+  <line x1="194" y1="264" x2="194" y2="292" stroke="#6b3fa0" stroke-width="2.4" marker-end="url(#ct-v)"/>
+  <text x="206" y="284" class="ct-d" font-size="12.5">scrive nel repository</text>
+
+  <!-- I tre pezzi -->
+  <rect x="44" y="300" width="300" height="108" rx="12" fill="#ffffff" stroke="#6b3fa0" stroke-width="1.5"/>
+  <text x="62" y="326" class="ct-t">File di contesto</text>
+  <text x="62" y="346" class="ct-d">come funziona il prodotto, le regole</text>
+  <text x="62" y="363" class="ct-d">dell'assistente</text>
+  <text x="62" y="392" class="ct-m" fill="#6b3fa0">docs/*.md · ai.widget.knowledge</text>
+
+  <rect x="44" y="422" width="300" height="196" rx="12" fill="#ffffff" stroke="#6b3fa0" stroke-width="1.5"/>
+  <text x="62" y="448" class="ct-t">Strumenti</text>
+  <text x="62" y="468" class="ct-d">ognuno risponde a una domanda e</text>
+  <text x="62" y="485" class="ct-d">decide cosa legge:</text>
+  <text x="62" y="512" class="ct-m">new AiTool('customer_lines',</text>
+  <text x="62" y="530" class="ct-m">  fn ($in) =&gt; Line::query()</text>
+  <text x="62" y="548" class="ct-m">  -&gt;forCustomer($in[…])</text>
+  <text x="62" y="566" class="ct-m">  -&gt;select('label','status')</text>
+  <text x="62" y="584" class="ct-m">  -&gt;limit(20)-&gt;get())</text>
+  <text x="62" y="606" class="ct-d" font-size="12.5">quali colonne · quante righe · di chi</text>
+
+  <rect x="44" y="632" width="300" height="104" rx="12" fill="#ffffff" stroke="#6b3fa0" stroke-width="1.5"/>
+  <text x="62" y="658" class="ct-t">Elenco dei permessi</text>
+  <text x="62" y="678" class="ct-d">quali strumenti l'AI può chiedere;</text>
+  <text x="62" y="695" class="ct-d">quelli di altri pacchetti restano fuori</text>
+  <text x="62" y="722" class="ct-m" fill="#6b3fa0">ai.widget.tools = ['customer_*']</text>
+
+  <text x="44" y="770" class="ct-d" font-size="12.5">Le regole di uno strumento sicuro sono</text>
+  <text x="44" y="788" class="ct-d" font-size="12.5">nelle istruzioni che l'AI locale legge:</text>
+  <text x="44" y="806" class="ct-d" font-size="12.5">risponde a una domanda, sceglie le colonne,</text>
+  <text x="44" y="824" class="ct-d" font-size="12.5">limita le righe, filtra per chi chiede,</text>
+  <text x="44" y="842" class="ct-d" font-size="12.5">legge e basta.</text>
+
+  <!-- Rilascio -->
+  <path d="M364,488 H404" stroke="#6b3fa0" stroke-width="3" marker-end="url(#ct-v)"/>
+  <text x="384" y="476" class="ct-lab" fill="#6b3fa0" font-size="12" text-anchor="middle">rilascio</text>
+
+  <!-- ===== Zona: in esercizio ===== -->
+  <rect x="408" y="102" width="420" height="774" rx="20" fill="#eef4f0"/>
+  <text x="432" y="130" class="ct-zone" fill="#2e6b4a">IN ESERCIZIO · LA NOSTRA RETE</text>
+
+  <!-- ai-module -->
+  <rect x="428" y="146" width="380" height="306" rx="14" fill="#ffffff" stroke="#2a5d93" stroke-width="2"/>
+  <rect x="448" y="166" width="84" height="26" rx="13" fill="#2a5d93"/><text x="490" y="184" font-size="12.5" font-weight="700" fill="#fff" text-anchor="middle">ai-module</text>
+  <text x="544" y="185" class="ct-lab" fill="#2a5d93">offre all'AI solo questo</text>
+  <text x="448" y="220" class="ct-d"><tspan class="ct-ok">→</tspan> il contesto, con ogni domanda</text>
+  <text x="448" y="242" class="ct-d"><tspan class="ct-ok">→</tspan> l'elenco degli strumenti permessi</text>
+  <line x1="448" y1="260" x2="788" y2="260" stroke="#e1e7e3"/>
+  <text x="448" y="284" class="ct-lab" fill="#2a5d93">quando l'AI chiede uno strumento</text>
+  <text x="448" y="308" class="ct-d"><tspan class="ct-ok">✓</tspan> è nell'elenco dei permessi?</text>
+  <text x="448" y="330" class="ct-d"><tspan class="ct-ok">✓</tspan> chi chiede può usare gli strumenti?</text>
+  <text x="448" y="352" class="ct-d"><tspan class="ct-ok">✓</tspan> entro il numero massimo di giri?</text>
+  <text x="448" y="374" class="ct-d"><tspan class="ct-ok">✓</tspan> segnaposto → valori veri negli argomenti</text>
+  <text x="448" y="400" class="ct-d">poi lo esegue <tspan font-weight="700" fill="#1d2421">nell'applicazione</tspan> e</text>
+  <text x="448" y="420" class="ct-d">oscura il risultato prima di rimandarlo.</text>
+  <text x="448" y="440" class="ct-no">Se un controllo non passa, lo strumento non parte.</text>
+
+  <line x1="618" y1="452" x2="618" y2="494" stroke="#2a5d93" stroke-width="2.4" marker-end="url(#ct-b)"/>
+  <text x="630" y="478" class="ct-d" font-size="12.5">lo strumento legge</text>
+
+  <!-- database con finestra -->
+  <rect x="428" y="500" width="380" height="356" rx="14" fill="#ffffff" stroke="#c8d8ce"/>
+  <!-- icona database -->
+  <ellipse cx="462" cy="526" rx="14" ry="5" fill="#e3efe7" stroke="#2e6b4a" stroke-width="2"/>
+  <path d="M448,526 V546 C448,552 476,552 476,546 V526" fill="#e3efe7" stroke="#2e6b4a" stroke-width="2"/>
+  <text x="490" y="536" class="ct-t">Il database dell'applicazione</text>
+  <text x="448" y="572" class="ct-d">lo strumento vede solo la sua finestra</text>
+
+  <rect x="448" y="588" width="166" height="118" rx="8" fill="#f0f2f0" stroke="#d6dbd7"/>
+  <text x="462" y="610" class="ct-t" fill="#7b8580">customers</text>
+  <text x="462" y="632" class="ct-d" font-size="12.5" fill="#8a948f">name · vat · iban</text>
+  <text x="462" y="650" class="ct-d" font-size="12.5" fill="#8a948f">phone · email</text>
+  <text x="462" y="692" class="ct-no">non esposto</text>
+
+  <rect x="626" y="588" width="166" height="118" rx="8" fill="#f1ebf9" stroke="#6b3fa0" stroke-width="2.4"/>
+  <text x="640" y="610" class="ct-t" fill="#6b3fa0">lines</text>
+  <text x="640" y="632" class="ct-d" font-size="12.5" fill="#1d2421" font-weight="700">label · status</text>
+  <text x="640" y="650" class="ct-d" font-size="12.5" fill="#8a948f"><tspan text-decoration="line-through">ip · password</tspan></text>
+  <text x="640" y="692" class="ct-lab" fill="#6b3fa0" font-size="12">2 colonne · max 20</text>
+
+  <rect x="448" y="718" width="166" height="118" rx="8" fill="#f0f2f0" stroke="#d6dbd7"/>
+  <text x="462" y="740" class="ct-t" fill="#7b8580">users</text>
+  <text x="462" y="762" class="ct-d" font-size="12.5" fill="#8a948f">email · password_hash</text>
+  <text x="462" y="822" class="ct-no">non esposto</text>
+
+  <rect x="626" y="718" width="166" height="118" rx="8" fill="#f0f2f0" stroke="#d6dbd7"/>
+  <text x="640" y="740" class="ct-t" fill="#7b8580">invoices</text>
+  <text x="640" y="762" class="ct-d" font-size="12.5" fill="#8a948f">amount · due_date</text>
+  <text x="640" y="822" class="ct-no">non esposto</text>
+
+  <!-- ===== Zona: Internet ===== -->
+  <rect x="844" y="102" width="332" height="774" rx="20" fill="#f8efe6" stroke="#d9b391" stroke-dasharray="8 6"/>
+  <text x="868" y="130" class="ct-zone" fill="#a04a14">INTERNET</text>
+
+  <rect x="864" y="146" width="292" height="118" rx="14" fill="#ffffff" stroke="#e6c9ad"/>
+  <path d="M892,198 C880,198 876,184 888,180 C886,168 902,162 908,172 C914,162 932,166 930,180 C942,182 940,198 928,198 Z" fill="#fbe9da" stroke="#b4500f" stroke-width="2.2" stroke-linejoin="round"/>
+  <text x="946" y="187" class="ct-h">AI remota</text>
+  <text x="884" y="224" class="ct-lab" fill="#b4500f">sceglie fra gli strumenti offerti</text>
+  <text x="884" y="244" class="ct-d">non vede il database né il codice</text>
+
+  <!-- scambi fra ai-module e AI -->
+  <path d="M808,214 H862" stroke="#b4500f" stroke-width="2.6" marker-end="url(#ct-o)"/>
+
+  <rect x="864" y="300" width="292" height="70" rx="10" fill="#ffffff" stroke="#e2bf9d"/>
+  <text x="880" y="322" class="ct-lab" fill="#b4500f">chiede uno strumento</text>
+  <text x="880" y="348" class="ct-m">customer_lines(<tspan class="ct-ph">[COMPANY_1]</tspan>)</text>
+  <path d="M862,336 H810" stroke="#b4500f" stroke-width="2.6" marker-end="url(#ct-o)"/>
+
+  <rect x="864" y="390" width="292" height="70" rx="10" fill="#ffffff" stroke="#e2bf9d"/>
+  <text x="880" y="412" class="ct-lab" fill="#b4500f">riceve il risultato, oscurato</text>
+  <text x="880" y="438" class="ct-m">[{"label":"WAN1","status":"giù"}]</text>
+  <path d="M808,424 H862" stroke="#b4500f" stroke-width="2.6" marker-end="url(#ct-o)"/>
+
+  <text x="868" y="512" class="ct-d">Uno strumento che non è</text>
+  <text x="868" y="530" class="ct-d">nell'elenco dei permessi,</text>
+  <text x="868" y="548" class="ct-d">per l'AI non esiste:</text>
+  <text x="868" y="566" class="ct-d">non lo vede e non lo può</text>
+  <text x="868" y="584" class="ct-d">far partire.</text>
+</svg>
