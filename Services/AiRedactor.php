@@ -99,10 +99,20 @@ class AiRedactor
         return $this->cache[$key] = $masked;
     }
 
-    /** The text with the placeholders of this call turned back into the real values. */
+    /**
+     * The text with the placeholders of this call turned back into the real values. Also without the
+     * brackets ("SERIAL_29" in a sentence, "**PERSON_1**"): models drop them in free text, and the user
+     * would read the placeholder. Only the placeholders of this call, so a word like "SERIAL_29" that
+     * the call never made stays as it is.
+     */
     public function unmask(?string $text): ?string
     {
-        return $text === null || $this->byPlaceholder === [] ? $text : strtr($text, $this->byPlaceholder);
+        if ($text === null || $this->byPlaceholder === []) {
+            return $text;
+        }
+        $text = strtr($text, $this->byPlaceholder);
+
+        return preg_replace_callback('/(?<![\[\w])[A-Z][A-Z_]*_\d+(?![\]\w])/', fn ($m) => $this->byPlaceholder['['.$m[0].']'] ?? $m[0], $text);
     }
 
     /** The same, in every string of an array: the arguments of a tool call. */
@@ -121,7 +131,7 @@ class AiRedactor
     public static function instructions(): string
     {
         return 'Some values in this conversation (names, companies, places, addresses, contacts) are replaced by placeholders such as [PERSON_1] or [IP_ADDRESS_2]. '
-            .'Use the placeholders exactly as written, also as arguments of the tools; never guess or invent what they stand for.';
+            .'Use the placeholders exactly as written, square brackets included, one by one and never abbreviated in a list ("[SERIAL_3], [SERIAL_4]", not "SERIAL_3, 4"), also as arguments of the tools; never guess or invent what they stand for.';
     }
 
     // -------------------------------------------------------------------------

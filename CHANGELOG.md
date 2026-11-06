@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.17.2] - 2026-11-06
+
+- The placeholders come back also without the square brackets: a model that writes "SERIAL_29" or "**PERSON_1**" in
+  a sentence no longer leaves the placeholder in the answer. Only the placeholders of the call are turned back.
+- The instructions to the model ask for the placeholders one by one, never abbreviated in a list ("[SERIAL_3],
+  [SERIAL_4]", not "SERIAL_3, 4").
+
 ## [1.17.1] - 2026-11-06
 
 - The English diagram "Who decides what the AI may read" had its remote AI box labelled in Italian.

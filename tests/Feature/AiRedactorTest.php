@@ -42,6 +42,19 @@ class AiRedactorTest extends TestCase
         $this->assertSame($text, $r->unmask($masked));
     }
 
+    public function test_the_placeholders_come_back_also_without_the_brackets()
+    {
+        $r = new AiRedactor;
+        $masked = $r->mask('IP 79.10.1.2');
+        $bare = substr($masked, 4, -1); // "IP [IP_ADDRESS_1]" → "IP_ADDRESS_1"
+
+        $this->assertSame(
+            'Prima 79.10.1.2, poi **79.10.1.2**; IP_ADDRESS_9 non è di questa chiamata.',
+            $r->unmask("Prima {$bare}, poi **{$bare}**; IP_ADDRESS_9 non è di questa chiamata.")
+        );
+        $this->assertSame('IP_ADDRESS_12', $r->unmask('IP_ADDRESS_12'), 'IP_ADDRESS_1 is not a piece of IP_ADDRESS_12');
+    }
+
     public function test_public_addresses_host_names_and_credentials_never_leave()
     {
         $r = new AiRedactor;
