@@ -38,15 +38,14 @@
                 {{-- What ai-module does: the two diagrams of docs/, in the language of the page --}}
                 @if($diagrams)
                     <h5 class="fw-semibold mt-4 mb-3 pb-2 border-bottom">{{ __('What ai-module does') }}</h5>
-                    <div class="row g-4 mb-2">
-                        @foreach($diagrams as $d)
-                            <div class="col-xl-6">
-                                <h6 class="fw-semibold mb-1">{{ $d['title'] }}</h6>
-                                <p class="small text-muted mb-2">{{ $d['text'] }}</p>
-                                <img src="{{ $d['src'] }}" alt="{{ $d['title'] }}" class="img-fluid border rounded" loading="lazy">
-                            </div>
-                        @endforeach
-                    </div>
+                    {{-- One under the other, the whole width: side by side the text of the diagrams was too small to read --}}
+                    @foreach($diagrams as $d)
+                        <div class="mb-4">
+                            <h6 class="fw-semibold mb-1">{{ $d['title'] }}</h6>
+                            <p class="small text-muted mb-2">{{ $d['text'] }}</p>
+                            <img src="{{ $d['src'] }}" alt="{{ $d['title'] }}" class="img-fluid rounded" loading="lazy">
+                        </div>
+                    @endforeach
                 @endif
 
                 <h5 class="fw-semibold mt-5 mb-1">{{ __('In this application, now') }}</h5>

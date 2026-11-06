@@ -126,8 +126,8 @@ class DevelopWithAi extends Component
         $it = str_starts_with(app()->getLocale(), 'it');
         $out = [];
         foreach ([
-            'data-protection' => [__('It keeps the personal data inside'), __('Before calling the AI it masks names, addresses and credentials, with Presidio for the names in free text, and puts the real values back in the answer.')],
             'context-and-tools' => [__('It decides what the AI may read'), __('Only the context and the tools the developers wrote: every tool reads its own window of the data, and the rest of the database does not exist for the AI.')],
+            'data-protection' => [__('It keeps the personal data inside'), __('Before calling the AI it masks names, addresses and credentials, with Presidio for the names in free text, and puts the real values back in the answer.')],
         ] as $name => [$title, $text]) {
             $file = $it && is_file("{$dir}/{$name}.it.svg") ? "{$dir}/{$name}.it.svg" : "{$dir}/{$name}.svg";
             if (is_file($file)) {

@@ -96,7 +96,7 @@ return [
         'save_label'    => null,   // what the action is called; null = "Save this conversation"
 
         // The tools the assistant may use, as an allow-list of names with "*" wildcards
-        // (["tickets_*"]). Empty = every tool the modules registered, which includes the ones
+        // (["orders_*"]). Empty = every tool the modules registered, which includes the ones
         // of packages you did not think about: the log reader of rapyd-admin, for instance.
         'tools'         => array_values(array_filter(array_map('trim',
             explode(',', (string) env('AI_WIDGET_TOOLS', ''))))),
@@ -150,7 +150,7 @@ return [
     |   "block", nothing is sent (AiRedactionException); "pass" sends the text
     |   with the terms and the patterns only.
     |
-    | `keep`: words never masked, the jargon of the application ("FWA", "TIM").
+    | `keep`: words never masked, the jargon of the application ("SKU", "VAT").
     */
     'redact' => [
         'enabled'   => (bool) env('AI_REDACT', false),

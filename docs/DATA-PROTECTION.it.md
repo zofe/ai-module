@@ -17,7 +17,7 @@ Come ai-module tiene i dati personali di un'applicazione lontani dal servizio AI
    - **gli schemi**: indirizzi IPv4 e IPv6 (pubblici e privati), indirizzi MAC, e-mail, IBAN, telefoni, nomi di dominio
      e credenziali;
    - **Microsoft Presidio**, installato sui propri server: i nomi di persona nel testo libero.
-3. **Il servizio AI legge solo segnaposto.** Può ragionarci sopra («[COMPANY_1] ha due linee giù») senza sapere chi o
+3. **Il servizio AI legge solo segnaposto.** Può ragionarci sopra («[COMPANY_1] ha due ordini non spediti») senza sapere chi o
    cosa siano.
 4. **Gli strumenti girano dentro l'applicazione.** Quando il modello chiede uno strumento, ai-module rimette i valori
    veri negli argomenti, esegue lo strumento sui dati dell'applicazione e ne oscura il risultato prima di rimandarlo. Il
@@ -35,7 +35,7 @@ parta, ai-module controlla che sia fra quelli permessi, che l'utente possa usare
 giri siano entro `ai.widget.max_tool_rounds`, e rimette i valori veri negli argomenti. Il suo risultato viene oscurato
 prima di tornare. Uno strumento sicuro:
 
-1. risponde a una domanda, non apre una tabella («le linee di un cliente», non «leggi la tabella lines»);
+1. risponde a una domanda, non apre una tabella («gli ordini di un cliente», non «leggi la tabella orders»);
 2. sceglie le colonne che servono alla risposta, mai password, note o contatti;
 3. limita le righe e dice quando ha tagliato; meglio totali e conteggi che elenchi lunghi;
 4. filtra per chi chiede quando i dati appartengono a un'azienda o a un utente;
@@ -64,9 +64,9 @@ anche lì.
 
 ## Cosa nessun filtro riconosce
 
-- una password scritta senza nessuna parola vicina («ho messo Tim2024! e ora va»): le credenziali si riconoscono da una
-  parola chiave («password:», «pin», «chiave wifi del modem =», «admin/admin»);
+- una password scritta senza nessuna parola vicina («ho messo S3cret!42 e ora va»): le credenziali si riconoscono da una
+  parola chiave («password:», «pin», «chiave wifi dell'ufficio =», «admin/admin», in italiano e in inglese);
 - un'azienda che non è fra i nomi noti e non sembra un nome di persona;
-- il senso della domanda: il servizio AI sa che «[COMPANY_1] ha una linea giù», non chi sia [COMPANY_1].
+- il senso della domanda: il servizio AI sa che «[COMPANY_1] ha un ordine non spedito», non chi sia [COMPANY_1].
 
 Configurazione ed esempi: la sezione [Personal data filter](../README.md#personal-data-filter) del README.

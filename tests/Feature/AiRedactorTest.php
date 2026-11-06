@@ -47,15 +47,15 @@ class AiRedactorTest extends TestCase
         $r = new AiRedactor;
         $cases = [
             'Il VPS 158.173.40.193 e la linea 109.52.199.159' => ['158.173.40.193', '109.52.199.159'],
-            'Il cliente ha pasticceria-rossi.it, il Box 60beb42fd63c.uania.cloud' => ['pasticceria-rossi.it', '60beb42fd63c.uania.cloud'],
-            'credenziali modem: user: admin password: Tim2024!' => ['admin', 'Tim2024!'],
+            'The customer has pasticceria-rossi.it, the shop runs on shop01.rossi-srl.example' => ['pasticceria-rossi.it', 'shop01.rossi-srl.example'],
+            'shop credentials: user: admin password: S3cret!42' => ['admin', 'S3cret!42'],
             'la password è Abc123 e il pin 4521' => ['Abc123', '4521'],
             'pppoe utente=mario.rossi@alice.it pwd=xK9#pp' => ['mario.rossi@alice.it', 'xK9#pp'],
             'chiave wifi: CasaRossi2020' => ['CasaRossi2020'],
-            'password del modem = zz88' => ['zz88'],
-            'Password WiFi: casa2020' => ['casa2020'],
+            'password of the office = zz88' => ['zz88'],
+            'Password WiFi: shop2020' => ['shop2020'],
             'il pin della SIM è 1234.' => ['1234'],
-            'accedere con admin/admin al modem, oppure root/Uania!2' => ['admin/admin', 'root/Uania!2'],
+            'log in with admin/admin, or root/Shop!2' => ['admin/admin', 'root/Shop!2'],
         ];
         foreach ($cases as $text => $secrets) {
             $masked = $r->mask($text);
@@ -72,9 +72,9 @@ class AiRedactorTest extends TestCase
         foreach ([
             'la password è stata cambiata ieri',
             "l'utente dice che la linea cade",
-            'vedi /etc/config/network e 24/7, il file 07-uaniaos.md e config.php',
+            'see /etc/config/network and 24/7, the file 07-guide.md and config.php',
             'Service 0.3.19 su OpenWrt 24.10, alle 10:30:15',
-            'Un Box appena installato non ha ancora la Cloud key: entra nel Canale provvisorio',
+            'Set the API key: it goes in the settings page',
         ] as $text) {
             $this->assertSame($text, $r->mask($text));
         }

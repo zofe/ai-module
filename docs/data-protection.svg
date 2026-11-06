@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 960" width="1200" height="960" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="18 22 1164 920" width="1164" height="920" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif">
   <title>How ai-module protects data before calling the AI</title>
   <defs>
     <marker id="dp-g" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#2e6b4a"/></marker>
@@ -82,8 +82,8 @@
   <text x="80" y="476" class="dp-lab" fill="#2a5d93">ai-module masks and keeps the table</text>
   <text x="80" y="500" class="dp-m"><tspan class="dp-ph">[PERSON_1]</tspan>     <tspan class="dp-real">Mario Rossi</tspan></text>
   <text x="80" y="520" class="dp-m"><tspan class="dp-ph">[COMPANY_1]</tspan>    <tspan class="dp-real">Rossi srl</tspan></text>
-  <text x="80" y="540" class="dp-m"><tspan class="dp-ph">[IP_ADDRESS_1]</tspan> <tspan class="dp-real">79.10.1.2</tspan></text>
-  <text x="80" y="560" class="dp-m"><tspan class="dp-ph">[CREDENTIAL_1]</tspan> <tspan class="dp-real">Tim2024!</tspan></text>
+  <text x="80" y="540" class="dp-m"><tspan class="dp-ph">[EMAIL_ADDRESS_1]</tspan> <tspan class="dp-real">mario@rossi.it</tspan></text>
+  <text x="80" y="560" class="dp-m"><tspan class="dp-ph">[CREDENTIAL_1]</tspan> <tspan class="dp-real">S3cret!42</tspan></text>
   <text x="80" y="588" class="dp-note" font-size="12">in memory, for one call only</text>
 
   <!-- 3 · App → AI -->
@@ -98,15 +98,15 @@
   <rect x="352" y="700" width="440" height="58" rx="10" fill="#ffffff" stroke="#e2bf9d"/>
   <circle cx="372" cy="719" r="11" fill="#b4500f"/><text x="372" y="723.5" class="dp-num" text-anchor="middle">4</text>
   <text x="390" y="724" class="dp-lab" fill="#b4500f">The answer, with placeholders</text>
-  <text x="366" y="746" class="dp-m">“<tspan class="dp-ph">[PERSON_1]</tspan>: check the line <tspan class="dp-ph">[IP_ADDRESS_1]</tspan>”</text>
+  <text x="366" y="746" class="dp-m">“<tspan class="dp-ph">[PERSON_1]</tspan>: send the link to <tspan class="dp-ph">[EMAIL_ADDRESS_1]</tspan>”</text>
   <line x1="990" y1="772" x2="210" y2="772" stroke="#b4500f" stroke-width="2.8" marker-end="url(#dp-o)"/>
 
   <!-- 5 · Ripopola -->
   <rect x="64" y="790" width="272" height="88" rx="12" fill="#ffffff" stroke="#2a5d93" stroke-width="2"/>
   <circle cx="84" cy="812" r="11" fill="#2a5d93"/><text x="84" y="816.5" class="dp-num" text-anchor="middle">5</text>
   <text x="102" y="817" class="dp-lab" fill="#2a5d93">ai-module restores, locally</text>
-  <text x="80" y="842" class="dp-d" fill="#1d2421">“<tspan class="dp-real">Mario Rossi</tspan>: check</text>
-  <text x="80" y="862" class="dp-d" fill="#1d2421">the line <tspan class="dp-real">79.10.1.2</tspan>” → to the user</text>
+  <text x="80" y="842" class="dp-d" fill="#1d2421">“<tspan class="dp-real">Mario Rossi</tspan>: send the link</text>
+  <text x="80" y="862" class="dp-d" fill="#1d2421">to <tspan class="dp-real">mario@rossi.it</tspan>” → to the user</text>
 
   <!-- Note in fondo alle colonne -->
   <text x="472" y="866" class="dp-note">If Presidio does not answer,</text>

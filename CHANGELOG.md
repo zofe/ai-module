@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.15.2] - 2026-11-06
+
+- "AI overview": the diagrams one under the other at full width, "who decides what the AI may read" first, without
+  the frame; the diagrams have less empty margin around them.
+- One neutral example across README, config, docs, diagrams and tests: a shop with orders and customers
+  (`orders_*` tools, `AI_REDACT_KEEP="SKU,VAT"`, `customer_orders`), instead of examples taken from a real project.
+
 ## [1.15.1] - 2026-11-06
 
 - "AI overview" links to the repository of ai-module; the README links to rapyd-admin and to the data protection
@@ -17,15 +24,15 @@
 ## [1.14.1] - 2026-11-06
 
 - `CREDENTIAL` no longer takes prose for a password: after a secret keyword (password, key, chiave, pin…) the value is
-  masked only when it looks like one, with a digit, a symbol or a capital. "la Cloud key: entra nel Canale" stays as it
-  is; "password: Tim2024!" and "user: admin" are still masked.
+  masked only when it looks like one, with a digit, a symbol or a capital. "set the API key: it goes in the settings" stays
+  as it is; "password: S3cret!42" and "user: admin" are still masked.
 
 ## [1.14.0] - 2026-11-06
 
 - **Host names and credentials are masked by the built-in patterns.** `HOSTNAME`: names with a dot and a top-level
   domain of letters, not file names; the public names the assistant needs go in `keep`. `CREDENTIAL`: the value after
-  a keyword (password, pwd, pin, chiave, key, utente, user, login…), also a few words later ("chiave wifi del modem:"),
-  a secret one without ":" when it has a digit or a symbol ("la password è Abc123"), and the pairs written together
+  a keyword (password, pwd, pin, chiave, key, utente, user, login…), also a few words later ("wifi key of the office:"),
+  a secret one without ":" when it has a digit or a symbol ("the password is Abc123"), and the pairs written together
   ("admin/admin"). A password with no word near it is not recognised.
 - `ai.redact.patterns` takes a list of expressions for a type.
 
@@ -58,7 +65,7 @@
 ## [1.11.1] - 2026-11-05
 
 - **Presidio no longer reads the system prompt and the knowledge**, only the messages and the tool results: on a
-  manual of 20,000 characters it took dozens of ordinary words ("Canale", "Stato", "Operatori", product names) for
+  manual of 20,000 characters it took dozens of ordinary words (names of pages, states, roles and products) for
   places, companies and people, and the model got a knowledge full of placeholders. The text the application wrote
   still goes through the names it knows and the patterns. `AiRedactor::mask()` takes `presidio: false` for that.
 
@@ -155,7 +162,7 @@
 - **`ai.widget.examples`**: two or three questions shown as buttons in the empty panel (`AI_WIDGET_EXAMPLES`,
   "|"-separated). A click asks the question; the index is resolved against the config server-side.
 - **`ai.widget.tools`**: the allow-list of tools the assistant may use, names with `*` wildcards
-  (`AI_WIDGET_TOOLS=tickets_*`). `AiRegistry` collects the tools of every installed module, rapyd-admin's log
+  (`AI_WIDGET_TOOLS=orders_*`). `AiRegistry` collects the tools of every installed module, rapyd-admin's log
   reader included: until now an application had no way to say which data its chatbot could reach. Tools left out
   stay registered but are neither offered nor executed. "Develop with AI" lists the ones held back.
 - **`ai.widget.system_prompt` accepts the name of an invokable class** (or a closure), resolved from the container

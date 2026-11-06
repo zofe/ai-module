@@ -20,10 +20,10 @@ AI_OPENAI_BASE_URL=https://api.deepseek.com/v1
 AI_MODEL=deepseek-chat
 AI_SYSTEM_PROMPT="You are the assistant of ..."   # optional, default: a brief from rpd:context
 AI_KNOWLEDGE=resources/ai/knowledge.md            # optional: what the bot knows about the product
-AI_WIDGET_TITLE="Ticket assistant"                # optional: what the panel calls itself
-AI_WIDGET_INTRO="Ask about the tickets: how many, of what kind, in which month."
-AI_WIDGET_EXAMPLES="How many tickets in September?|Which problems are growing?"
-AI_WIDGET_TOOLS=tickets_*                         # optional: the tools the assistant may use
+AI_WIDGET_TITLE="Orders assistant"                # optional: what the panel calls itself
+AI_WIDGET_INTRO="Ask about the orders: how many, of which products, in which month."
+AI_WIDGET_EXAMPLES="How many orders in September?|Which products are growing?"
+AI_WIDGET_TOOLS=orders_*                          # optional: the tools the assistant may use
 AI_WIDGET_REMEMBER=false                          # optional: do not keep the chat across pages
 ```
 
@@ -49,9 +49,9 @@ teach what can be asked here better than any description, and a click sends the 
 index is resolved against the config server-side, so the panel asks what you wrote and nothing else.
 
 ```php
-'title'    => 'Ticket assistant',
-'intro'    => 'Ask about the tickets: how many, of what kind, in which month.',
-'examples' => ['Which problems grew in the last three months?', 'How many tickets about connectivity in September?'],
+'title'    => 'Orders assistant',
+'intro'    => 'Ask about the orders: how many, of which products, in which month.',
+'examples' => ['Which products grew in the last three months?', 'How many orders of shoes in September?'],
 ```
 
 ## The perimeter of the tools
@@ -62,7 +62,7 @@ application log. `ai.widget.tools` is the allow-list that decides what the assis
 wildcards, empty = everything:
 
 ```dotenv
-AI_WIDGET_TOOLS=tickets_*,category_*
+AI_WIDGET_TOOLS=orders_*,products_*
 ```
 
 Tools left out stay registered — other code can still call them — but they are neither sent to the provider nor
@@ -76,7 +76,7 @@ called at every request, so it is never frozen in the config cache.
 
 ```php
 // config/ai.php
-'system_prompt' => \App\Modules\TicketReport\Ai\AssistantPrompt::class,
+'system_prompt' => \App\Modules\Shop\Ai\AssistantPrompt::class,
 ```
 
 ```php
@@ -105,7 +105,7 @@ one: the name of an invokable class that receives the messages and returns the U
 stay where they are). A bookmark appears in the header of the panel as soon as there is an answer worth keeping.
 
 ```php
-'on_save'    => \App\Modules\TicketReport\Ai\SaveConversationAsReport::class,
+'on_save'    => \App\Modules\Shop\Ai\SaveConversationAsReport::class,
 'save_label' => 'Save as report',
 ```
 
@@ -197,26 +197,26 @@ the same in the console.
 
 **AI in this application**, for the people who use it:
 
-- **What the AI did**: the activities the modules declare, in the words of the domain — "Tickets classified",
-  8 845, "from 26 categories the AI proposed" — each with the cost of its ledger context next to it. A module
+- **What the AI did**: the activities the modules declare, in the words of the domain — "Reviews summarised",
+  1 240, "from the reviews of the last month" — each with the cost of its ledger context next to it. A module
   implements rapyd-admin's `AiActivityProvider` and registers it, guarded like the tools:
 
   ```php
   use Zofe\Rapyd\Contracts\{AiActivity, AiActivityProvider};
 
-  class TicketReportActivities implements AiActivityProvider
+  class ShopActivities implements AiActivityProvider
   {
       public function activities(): array
       {
           return [
-              new AiActivity('tickets_classified', 'Tickets classified', TicketClassification::count(),
-                  detail: 'from the categories the AI proposed', context: 'classify', lastAt: $lastRun?->finished_at),
+              new AiActivity('reviews_summarised', 'Reviews summarised', ReviewSummary::count(),
+                  detail: 'from the reviews of the last month', context: 'summarise', lastAt: $lastRun?->finished_at),
           ];
       }
   }
 
   if (class_exists(\Zofe\Ai\AiRegistry::class)) {
-      \Zofe\Ai\AiRegistry::registerActivities(new TicketReportActivities());
+      \Zofe\Ai\AiRegistry::registerActivities(new ShopActivities());
   }
   ```
 - **What it costs**: today against the daily budget, this month, since the start, by context — from the ledger.
@@ -250,7 +250,7 @@ AI_REDACT=true
 AI_PRESIDIO_URL=https://presidio.example.org   # optional: names and places in free text (Microsoft Presidio analyzer)
 AI_PRESIDIO_LANGUAGE=it
 AI_REDACT_TERMS="App\\Ai\\KnownNames"            # optional: invokable class, the names the application knows
-AI_REDACT_KEEP="FWA,TIM"                        # words never masked
+AI_REDACT_KEEP="SKU,VAT"                        # words never masked: the jargon of your product
 AI_REDACT_ON_ERROR=block                         # Presidio down: block (default) or pass
 ```
 
@@ -258,7 +258,8 @@ AI_REDACT_ON_ERROR=block                         # Presidio down: block (default
 longest first, so the companies and customers in the database are always caught. The built-in patterns cover
 e-mail, IPv4/IPv6 (public and private) and MAC addresses, IBANs, Italian phone numbers, host names and credentials
 (`ai.redact.patterns` to change them; a type can have a list of expressions). Credentials have no shape, so the value
-after a keyword is masked: "password: Tim2024!", "chiave wifi del modem = zz88", "la password è Abc123", "admin/admin".
+after a keyword is masked: "password: S3cret!42", "wifi key of the office = zz88", "the pin is 4521", "admin/admin"
+(the keywords are in English and Italian).
 A password written with no word near it cannot be told from an ordinary word. The public host names the assistant
 needs (the address of the application) go in `keep`.
-Presidio is for the free text: notes, tickets, what users type. It reads the messages and the tool results, never the system prompt and the knowledge: the application wrote those, and Presidio takes the words of a manual ("Canale", "Stato", the product names) for places, companies and people.
+Presidio is for the free text: notes, messages, what users type. It reads the messages and the tool results, never the system prompt and the knowledge: the application wrote those, and Presidio takes the words of a manual (the names of pages, states and products) for places, companies and people.

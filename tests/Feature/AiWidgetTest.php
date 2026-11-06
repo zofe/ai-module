@@ -211,30 +211,30 @@ class AiWidgetTest extends TestCase
             ->assertSee('Ask me about your application data');
 
         config([
-            'ai.widget.title' => 'Ticket assistant',
-            'ai.widget.intro' => 'Ask about the tickets: how many, of what kind, in which month.',
+            'ai.widget.title' => 'Orders assistant',
+            'ai.widget.intro' => 'Ask about the orders: how many, of which products, in which month.',
         ]);
 
         Livewire::test(AiWidget::class)
-            ->assertSee('Ticket assistant')
+            ->assertSee('Orders assistant')
             ->assertDontSee('AI Assistant')
-            ->assertSee('Ask about the tickets')
+            ->assertSee('Ask about the orders')
             ->assertDontSee('logs, users');
     }
 
     public function test_an_example_is_asked_by_its_index_and_nothing_else_is()
     {
         $this->fakeProvider('Forty-two.');
-        config(['ai.widget.examples' => ['How many tickets in September?', 'Which problems are growing?']]);
+        config(['ai.widget.examples' => ['How many orders in September?', 'Which products are growing?']]);
 
         Livewire::test(AiWidget::class)
-            ->assertSee('Which problems are growing?')
+            ->assertSee('Which products are growing?')
             ->call('ask', 1)
-            ->assertSee('Which problems are growing?')
+            ->assertSee('Which products are growing?')
             ->assertSee('Forty-two.');
 
         $messages = $this->lastPayload()['messages'];
-        $this->assertSame('Which problems are growing?', end($messages)['content']);
+        $this->assertSame('Which products are growing?', end($messages)['content']);
 
         // An index the application never offered asks nothing at all.
         Livewire::test(AiWidget::class)->call('ask', 9)->assertSet('input', '');
@@ -243,12 +243,12 @@ class AiWidgetTest extends TestCase
     public function test_the_allow_list_keeps_the_assistant_to_the_tools_of_its_subject()
     {
         $this->fakeProvider();
-        config(['ai.widget.mode' => 'operator', 'ai.widget.tools' => ['tickets_*']]);
+        config(['ai.widget.mode' => 'operator', 'ai.widget.tools' => ['orders_*']]);
         AiRegistry::register(new class implements AiToolProvider {
             public function tools(): array
             {
                 return [
-                    new AiTool('tickets_count', 'Counts the tickets', ['type' => 'object'], fn () => 7),
+                    new AiTool('orders_count', 'Counts the orders', ['type' => 'object'], fn () => 7),
                     new AiTool('get_recent_errors', 'Reads the application log', ['type' => 'object'], fn () => 'boom'),
                 ];
             }
@@ -257,11 +257,11 @@ class AiWidgetTest extends TestCase
         Livewire::actingAs($this->user())->test(AiWidget::class)->set('input', 'any errors?')->call('send');
 
         $offered = array_map(fn ($tool) => $tool['function']['name'], $this->lastPayload()['tools']);
-        $this->assertSame(['tickets_count'], $offered, 'the log tool stays registered but is not offered');
+        $this->assertSame(['orders_count'], $offered, 'the log tool stays registered but is not offered');
 
         // A model that names a tool it was never offered does not get it executed.
         $service = app(\Zofe\Ai\Services\AiService::class);
-        $this->assertTrue($service->allows('tickets_count'));
+        $this->assertTrue($service->allows('orders_count'));
         $this->assertFalse($service->allows('get_recent_errors'));
         $this->assertFalse($service->allows('unknown_tool'));
     }
@@ -293,7 +293,7 @@ class AiWidgetTest extends TestCase
 
     public function test_a_conversation_can_be_handed_to_the_application_with_what_it_cost()
     {
-        $this->fakeProvider('Two hundred tickets.', in: 1_000_000, out: 1_000_000);
+        $this->fakeProvider('Two hundred orders.', in: 1_000_000, out: 1_000_000);
         config([
             'ai.widget.on_save' => AiWidgetTestSaver::class,
             'ai.budget.price_input' => 0.3,
@@ -303,14 +303,14 @@ class AiWidgetTest extends TestCase
 
         Livewire::test(AiWidget::class)
             ->assertDontSee('fa-bookmark', false)
-            ->set('input', 'how many tickets?')
+            ->set('input', 'how many orders?')
             ->call('send')
             ->assertSee('fa-bookmark', false)
             ->call('save')
             ->assertRedirect('/reports/1');
 
         $this->assertSame(
-            ['how many tickets?', 'Two hundred tickets.'],
+            ['how many orders?', 'Two hundred orders.'],
             array_column(AiWidgetTestSaver::$seen, 'content'),
         );
 

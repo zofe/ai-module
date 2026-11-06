@@ -17,7 +17,7 @@ How ai-module keeps the personal data of an application away from the AI provide
    - **patterns**: IPv4 and IPv6 addresses (public and private), MAC addresses, e-mail, IBAN, phone numbers, host
      names and credentials;
    - **Microsoft Presidio**, self-hosted: the names of people in free text.
-3. **The provider reads placeholders only.** It can reason on them ("[COMPANY_1] has two lines down") without knowing
+3. **The provider reads placeholders only.** It can reason on them ("[COMPANY_1] has two orders not shipped") without knowing
    who or what they are.
 4. **Tools run inside the application.** When the model asks for a tool, ai-module puts the real values back in the
    arguments, runs the tool against the application's own data, and redacts its result before it goes back. The model
@@ -35,7 +35,7 @@ what it reads. Before it runs, ai-module checks that it is on the allow-list, th
 never does), that the rounds are within `ai.widget.max_tool_rounds`, and puts the real values back in the arguments.
 Its result is masked before it goes back. A safe tool:
 
-1. answers a question, it does not open a table ("the lines of a customer", not "read the lines table");
+1. answers a question, it does not open a table ("the orders of a customer", not "read the orders table");
 2. selects the columns the answer needs, never passwords, notes or contacts;
 3. limits the rows and says when it cut; totals and counts beat long lists;
 4. filters by who asks when the data belong to a company or a user;
@@ -64,9 +64,9 @@ apply to them.
 
 ## What no filter can tell
 
-- a password written with no word near it ("I set Tim2024! and now it works"): credentials are recognised from a
-  keyword ("password:", "pin", "chiave wifi del modem =", "admin/admin");
+- a password written with no word near it ("I set S3cret!42 and now it works"): credentials are recognised from a
+  keyword ("password:", "pin", "wifi key of the office =", "admin/admin", in English and Italian);
 - a company that is not among the known names and does not look like a person's name;
-- the meaning of the question: the provider knows that "[COMPANY_1] has a line down", not who [COMPANY_1] is.
+- the meaning of the question: the provider knows that "[COMPANY_1] has an order not shipped", not who [COMPANY_1] is.
 
 Configuration and examples: the [Personal data filter](../README.md#personal-data-filter) section of the README.

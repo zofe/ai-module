@@ -55,7 +55,7 @@ class DevelopWithAiTest extends TestCase
             public function activities(): array
             {
                 return [
-                    new AiActivity('tickets_classified', 'Tickets classified', 8845, 'from 26 categories the AI proposed', 'classify', now()),
+                    new AiActivity('reviews_summarised', 'Reviews summarised', 1240, 'from the reviews of the last month', 'classify', now()),
                     new AiActivity('chat_sessions', 'Chat sessions', 3),
                 ];
             }
@@ -63,22 +63,22 @@ class DevelopWithAiTest extends TestCase
         AiRegistry::register(new class implements AiToolProvider {
             public function tools(): array
             {
-                return [new AiTool('tickets_count', 'Counts the tickets', ['type' => 'object'], fn () => 0)];
+                return [new AiTool('orders_count', 'Counts the orders', ['type' => 'object'], fn () => 0)];
             }
         });
         $this->actingAs($this->userWith(true));
 
         Livewire::test(DevelopWithAi::class)
             ->assertSee('AI in this application')
-            ->assertSee('Tickets classified')
-            ->assertSee('8,845')
-            ->assertSee('from 26 categories the AI proposed')
+            ->assertSee('Reviews summarised')
+            ->assertSee('1,240')
+            ->assertSee('from the reviews of the last month')
             ->assertSee('Chat sessions')
-            ->assertSeeInOrder(['8,845', '0.9000 $'])   // the cost of the activity: 1M input at 0.30 + 0.5M output at 1.20
+            ->assertSeeInOrder(['1,240', '0.9000 $'])   // the cost of the activity: 1M input at 0.30 + 0.5M output at 1.20
             ->assertSee('This month')
             ->assertSee('Since ' . now()->format('Y-m-d'))
-            ->assertSee('tickets_count')
-            ->assertSee('Counts the tickets')
+            ->assertSee('orders_count')
+            ->assertSee('Counts the orders')
             ->assertDontSee('Try it: prompts')
             ->assertDontSee('shop-module');
     }
@@ -129,14 +129,14 @@ class DevelopWithAiTest extends TestCase
         $this->actingAs($this->userWith(true));
         Livewire::test(DevelopWithAi::class)->assertSee('No filter: the texts leave for the provider as they are');
 
-        config(['ai.redact.keep' => ['TIM', 'glorytun'], 'ai.redact.enabled' => true, 'ai.redact.presidio.url' => 'https://presidio.example.org', 'ai.redact.presidio.entities' => ['PERSON']]);
+        config(['ai.redact.keep' => ['SKU', 'VAT'], 'ai.redact.enabled' => true, 'ai.redact.presidio.url' => 'https://presidio.example.org', 'ai.redact.presidio.entities' => ['PERSON']]);
         Livewire::test(DevelopWithAi::class)
             ->assertSee('Personal data')
             ->assertSee('Sensitive data protected with Microsoft Presidio')
             ->assertSee('running on presidio.example.org')
             ->assertSee('Presidio finds in the free text: person.')
             ->assertSee('If Presidio does not answer, nothing is sent.')
-            ->assertSee('TIM, glorytun');
+            ->assertSee('SKU, VAT');
     }
 
     public function test_the_side_for_the_developers_is_there_unless_the_application_turned_it_off()
