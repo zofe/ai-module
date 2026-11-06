@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.16.0] - 2026-11-06
+
+- `AI_OVERVIEW_PUBLIC=true` opens "AI in this application" to the visitors who are not logged in, costs included,
+  and puts an "AI" entry in the public navbar (`menu_frontend`). The developer side stays for the ones logged in
+  with the permission. The route `ai/develop` no longer carries the `auth` middleware: the component sends a guest
+  to the login where the page is not public, as before.
+
 ## [1.15.5] - 2026-11-06
 
 - "AI overview": the two diagrams start on the same line (they were aligned at the bottom, and having different

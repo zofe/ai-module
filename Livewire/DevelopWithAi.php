@@ -30,6 +30,12 @@ class DevelopWithAi extends Component
 
     public function booted(): void
     {
+        // A visitor sees "AI in this application" where the page is public; anyone logged in
+        // still needs the permission (the developer side is theirs).
+        if (config('ai.overview_public') && ! auth()->check()) {
+            return;
+        }
+
         $this->authorize('admin|develop with ai');
     }
 
@@ -45,10 +51,10 @@ class DevelopWithAi extends Component
         $this->activities = $this->activities();
     }
 
-    /** The developer side is shown unless the application turned it off (`ai.develop`). */
+    /** The developer side: for the ones logged in, unless the application turned it off (`ai.develop`). */
     public function develop(): bool
     {
-        return (bool) config('ai.develop', true);
+        return (bool) config('ai.develop', true) && auth()->check();
     }
 
     /**

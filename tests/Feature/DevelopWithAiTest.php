@@ -47,6 +47,28 @@ class DevelopWithAiTest extends TestCase
         Livewire::test(DevelopWithAi::class)->assertForbidden();
     }
 
+    public function test_a_public_page_shows_a_guest_the_side_for_the_people_who_use_the_application_costs_included()
+    {
+        config(['ai.overview_public' => true, 'ai.budget.price_input' => 0.30, 'ai.budget.price_output' => 1.20]);
+        app(AiUsage::class)->record(1_000_000, 500_000, 'chat');
+
+        Livewire::test(DevelopWithAi::class)
+            ->assertOk()
+            ->assertSee('AI in this application')
+            ->assertSee('What it costs')
+            ->assertSee('0.9000 $')
+            ->assertDontSee('Develop with AI')
+            ->assertDontSee('Boilerplate written for you');
+
+        // the public navbar carries the entry only then
+        $this->assertStringContainsString('ai/develop', view('ai::frontend_menu')->render());
+        config(['ai.overview_public' => false]);
+        $this->assertStringNotContainsString('ai/develop', view('ai::frontend_menu')->render());
+
+        // the route has no auth middleware: the component decides
+        $this->assertNotContains('auth', \Illuminate\Support\Facades\Route::getRoutes()->getByName('ai.develop')->middleware());
+    }
+
     public function test_the_side_for_the_people_who_use_the_application_shows_what_the_ai_did_and_what_it_costs()
     {
         config(['ai.budget.price_input' => 0.30, 'ai.budget.price_output' => 1.20]);

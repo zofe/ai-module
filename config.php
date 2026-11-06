@@ -22,6 +22,13 @@ return [
     // not the developers.
     'develop' => (bool) env('AI_DEVELOP_PAGE', true),
 
+    // Open "AI in this application" to the visitors who are not logged in, costs included: a
+    // public demo shows what the AI does and spends, like it shows the chat. The developer side
+    // stays for the ones logged in with the permission. The public navbar gets an "AI" entry.
+    'overview_public' => (bool) env('AI_OVERVIEW_PUBLIC', false),
+    'menu_frontend' => 'ai::frontend_menu',
+    'menu_frontend_position' => 90,
+
     'permissions' => ['develop with ai'],
     'role_permissions' => [
         'operator' => ['develop with ai'],
