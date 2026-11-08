@@ -53,6 +53,7 @@ class AiRedactorTest extends TestCase
             $r->unmask("Prima {$bare}, poi **{$bare}**; IP_ADDRESS_9 non è di questa chiamata.")
         );
         $this->assertSame('IP_ADDRESS_12', $r->unmask('IP_ADDRESS_12'), 'IP_ADDRESS_1 is not a piece of IP_ADDRESS_12');
+        $this->assertSame('Pagina 79.10.1.2, 79.10.1.2.', $r->unmask('Pagina ['.strtolower($bare).'], '.strtolower($bare).'.'), 'a model that lowers the case');
     }
 
     public function test_public_addresses_host_names_and_credentials_never_leave()

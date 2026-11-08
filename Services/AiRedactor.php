@@ -101,18 +101,22 @@ class AiRedactor
 
     /**
      * The text with the placeholders of this call turned back into the real values. Also without the
-     * brackets ("SERIAL_29" in a sentence, "**PERSON_1**"): models drop them in free text, and the user
-     * would read the placeholder. Only the placeholders of this call, so a word like "SERIAL_29" that
-     * the call never made stays as it is.
+     * brackets ("SERIAL_29" in a sentence, "**PERSON_1**") and in another case ("[serial_1]"): models
+     * drop the brackets in free text and lower the case when asked to, and the user would read the
+     * placeholder. One pass over the text, so a real value put back is never read again; only the
+     * placeholders of this call, so a word like "SERIAL_29" that the call never made stays as it is.
      */
     public function unmask(?string $text): ?string
     {
         if ($text === null || $this->byPlaceholder === []) {
             return $text;
         }
-        $text = strtr($text, $this->byPlaceholder);
 
-        return preg_replace_callback('/(?<![\[\w])[A-Z][A-Z_]*_\d+(?![\]\w])/', fn ($m) => $this->byPlaceholder['['.$m[0].']'] ?? $m[0], $text);
+        return preg_replace_callback(
+            '/\[([A-Za-z][A-Za-z_]*_\d+)\]|(?<![\[\w])([A-Za-z][A-Za-z_]*_\d+)(?![\]\w])/',
+            fn ($m) => $this->byPlaceholder['['.strtoupper($m[1] !== '' ? $m[1] : $m[2]).']'] ?? $m[0],
+            $text,
+        );
     }
 
     /** The same, in every string of an array: the arguments of a tool call. */

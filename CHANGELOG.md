@@ -1,5 +1,10 @@
 # Changelog
 
+## [1.17.3] - 2026-11-08
+
+- The placeholders come back also in another case: a model asked to write an identifier in lower case wrote
+  "[serial_1]", and the answer kept it. One pass over the text, so a value put back is never read again.
+
 ## [1.17.2] - 2026-11-06
 
 - The placeholders come back also without the square brackets: a model that writes "SERIAL_29" or "**PERSON_1**" in
