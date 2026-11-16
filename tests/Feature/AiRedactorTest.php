@@ -139,6 +139,25 @@ class AiRedactorTest extends TestCase
         Http::assertSent(fn (Request $r) => $r['language'] === 'it' && $r['text'] === $text);
     }
 
+    public function test_a_presidio_span_with_the_blank_around_it_gives_back_the_value_alone()
+    {
+        config(['ai.redact.presidio.url' => 'https://presidio.test']);
+        $text = "#dae277d0\nOggetto: nino\nOperatore";
+        Http::fake(['presidio.test/analyze' => Http::response([
+            // The span runs over the line break after the id, and the one of "nino" takes the word after too.
+            ['entity_type' => 'PERSON', 'start' => 1, 'end' => 10, 'score' => 0.85],
+            ['entity_type' => 'PERSON', 'start' => 19, 'end' => 23, 'score' => 0.85],
+            ['entity_type' => 'PERSON', 'start' => 23, 'end' => 24, 'score' => 0.85],   // only the line break: nothing to mask
+        ])]);
+        $redactor = new AiRedactor;
+
+        $masked = $redactor->mask($text);
+
+        // The placeholders are numbered from the end of the text.
+        $this->assertSame("#[PERSON_2]\nOggetto: [PERSON_1]\nOperatore", $masked);
+        $this->assertSame('{"id": "dae277d0"}', $redactor->unmask('{"id": "[PERSON_2]"}'), 'the value comes back without the line break');
+    }
+
     public function test_presidio_does_not_read_the_system_prompt()
     {
         config(['ai.redact.presidio.url' => 'https://presidio.test', 'ai.widget.system_prompt' => 'Il Canale del Box. Scrivi a info@esempio.it']);

@@ -258,10 +258,30 @@ class AiRedactor
             if ($wanted === null && in_array($f['entity_type'], (array) config('ai.redact.presidio.ignore', ['DATE_TIME', 'URL', 'NRP']), true)) {
                 continue;
             }
-            $spans[] = ['type' => $f['entity_type'], 'start' => (int) $f['start'], 'end' => (int) $f['end'], 'score' => (float) ($f['score'] ?? 0.5)];
+            // Presidio may take the blank around a name into the span ("Rossi\n"): the value put
+            // back would carry a line break, which breaks a JSON answer. Only the characters that
+            // are not blank are the value.
+            [$start, $end] = $this->shrink($text, (int) $f['start'], (int) $f['end']);
+            if ($end <= $start) {
+                continue;
+            }
+            $spans[] = ['type' => $f['entity_type'], 'start' => $start, 'end' => $end, 'score' => (float) ($f['score'] ?? 0.5)];
         }
 
         return $spans;
+    }
+
+    /** The span without the blank characters at its ends, as [start, end] in characters. */
+    protected function shrink(string $text, int $start, int $end): array
+    {
+        while ($start < $end && preg_match('/^\s$/u', mb_substr($text, $start, 1))) {
+            $start++;
+        }
+        while ($end > $start && preg_match('/^\s$/u', mb_substr($text, $end - 1, 1))) {
+            $end--;
+        }
+
+        return [$start, $end];
     }
 
     /**

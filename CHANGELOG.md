@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.17.4] - 2026-11-16
+
+- A Presidio span no longer carries the blank around the value: a name found as "Rossi\n" was put back with its
+  line break, and a JSON answer holding it became invalid (an application classifying tickets retried the same
+  ticket for days). Only the characters that are not blank are masked and restored.
+
 ## [1.17.3] - 2026-11-08
 
 - The placeholders come back also in another case: a model asked to write an identifier in lower case wrote
